@@ -1,8 +1,19 @@
 diff --git a/androidApp/build.gradle.kts b/androidApp/build.gradle.kts
-index ae97ecc..475d6e0 100644
+index ae97ecc..e1f3fc9 100644
 --- a/androidApp/build.gradle.kts
 +++ b/androidApp/build.gradle.kts
-@@ -157,15 +157,15 @@ android {
+@@ -123,6 +123,10 @@ android {
+     }
+ 
+     buildTypes {
++        getByName("debug") {
++            isDebuggable = false
++            isJniDebuggable = false
++        }
+         getByName("release") {
+             val minifyRelease = providers.gradleProperty("releaseMinifyEnabled")
+                 .map(String::toBooleanStrict)
+@@ -157,15 +161,15 @@ android {
  
  androidComponents {
      onVariants(selector().withBuildType("debug")) { variant ->
@@ -21,6 +32,20 @@ index ae97ecc..475d6e0 100644
              variant.signingConfig.setConfig(android.signingConfigs.getByName("debug"))
          }
      }
+@@ -201,12 +205,12 @@ sentry {
+ }
+ 
+ dependencies {
++    debugImplementation(libs.compose.uiTooling)
+     implementation(project(":composeApp"))
+     implementation(libs.androidx.appcompat)
+     implementation(libs.compose.runtime)
+     coreLibraryDesugaring(libs.desugar.jdk.libs)
+     baselineProfile(project(":baselineprofile"))
+-    debugImplementation(libs.compose.uiTooling)
+     androidTestImplementation("androidx.test:runner:1.7.0")
+     androidTestImplementation("androidx.test:core:1.7.0")
+     androidTestImplementation(libs.androidx.testExt.junit)
 diff --git a/androidApp/src/debug/res/values/strings.xml b/androidApp/src/debug/res/values/strings.xml
 index 0e9eb7a..8f63454 100644
 --- a/androidApp/src/debug/res/values/strings.xml
@@ -907,11 +932,39 @@ index 0000000..3edc99d
 +    fun isOnWifi(): Boolean
 +    val transportState: kotlinx.coroutines.flow.StateFlow<Boolean>
 +}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeScreen.kt
+index 8e2fe08..ced977c 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeScreen.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/HomeScreen.kt
+@@ -1022,7 +1022,6 @@ fun HomeScreen(
+                                 modifier = Modifier,
+                                 viewportHeight = maxHeight,
+                                 mobileBelowSectionHeightHint = mobileHeroBelowSectionHeightHint,
+-                                listState = homeListState,
+                                 stretchPx = { heroStretchState.stretchPx },
+                                 showImdbRating = homeHeroState.showImdbRating,
+                                 showMdbListRatings = homeHeroState.showMdbListRatings,
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
-index 4f58f00..187f561 100644
+index 4f58f00..67d556e 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
-@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.Dp
+@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.width
+ import androidx.compose.foundation.layout.widthIn
+ import androidx.compose.foundation.layout.PaddingValues
+-import androidx.compose.foundation.lazy.LazyListState
+ import androidx.compose.foundation.pager.HorizontalPager
+ import androidx.compose.foundation.pager.PagerState
+ import androidx.compose.foundation.pager.rememberPagerState
+@@ -33,7 +32,6 @@ import androidx.compose.material3.Text
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.LaunchedEffect
+ import androidx.compose.runtime.getValue
+-import androidx.compose.runtime.derivedStateOf
+ import androidx.compose.runtime.key
+ import androidx.compose.runtime.mutableStateOf
+ import androidx.compose.runtime.remember
+@@ -56,7 +54,6 @@ import androidx.compose.ui.unit.Dp
  import androidx.compose.ui.unit.dp
  import coil3.compose.AsyncImage
  import com.nuvio.app.core.ui.focusedAlignment
@@ -919,7 +972,43 @@ index 4f58f00..187f561 100644
  import com.nuvio.app.core.ui.revealAlpha
  import com.nuvio.app.core.ui.heroStretchHeight
  import com.nuvio.app.core.ui.LocalVerticalBarPadding
-@@ -208,8 +207,7 @@ fun HomeHeroSection(
+@@ -76,10 +73,6 @@ import kotlin.math.abs
+ private const val HERO_BACKGROUND_PARALLAX = 0.055f
+ private const val HERO_BACKGROUND_SCALE = 1.14f
+ private const val HERO_CONTENT_PARALLAX = 0.18f
+-private const val HERO_SCROLL_PARALLAX = 0.3f
+-private const val HERO_SCROLL_DOWN_SCALE_MULTIPLIER = 0.0001f
+-private const val HERO_SCROLL_UP_SCALE_MULTIPLIER = 0.002f
+-private const val HERO_SCROLL_MAX_SCALE = 1.3f
+ private const val HERO_SWIPE_THRESHOLD_FRACTION = 0.16f
+ private const val HERO_SWIPE_VELOCITY_THRESHOLD = 300f
+ private const val HERO_AUTO_SCROLL_INTERVAL_MS = 8_000L
+@@ -104,7 +97,6 @@ fun HomeHeroSection(
+     modifier: Modifier = Modifier,
+     viewportHeight: Dp? = null,
+     mobileBelowSectionHeightHint: Dp? = null,
+-    listState: LazyListState? = null,
+     stretchPx: () -> Float = { 0f },
+     showImdbRating: Boolean = true,
+     showMdbListRatings: Boolean = false,
+@@ -163,16 +155,6 @@ fun HomeHeroSection(
+             mobileBelowSectionHeightHintDp = mobileBelowSectionHeightHint?.value,
+         )
+         val heroWidthPx = with(LocalDensity.current) { maxWidth.toPx() }
+-        val heroHeightPx = with(LocalDensity.current) { layout.heroHeight.toPx() }
+-        val scrollOffsetPx by remember(listState, heroHeightPx) {
+-            derivedStateOf {
+-                when {
+-                    listState == null -> 0f
+-                    listState.firstVisibleItemIndex > 0 -> heroHeightPx
+-                    else -> listState.firstVisibleItemScrollOffset.toFloat()
+-                }
+-            }
+-        }
+         val currentPage = pagerState.currentPage
+         val visiblePages = listOf(
+             currentPage,
+@@ -208,8 +190,7 @@ fun HomeHeroSection(
                  state = pagerState,
                  userScrollEnabled = false,
                  modifier = Modifier
@@ -929,7 +1018,7 @@ index 4f58f00..187f561 100644
              ) {
                  Box(modifier = Modifier.fillMaxSize())
              }
-@@ -226,7 +224,6 @@ fun HomeHeroSection(
+@@ -226,27 +207,19 @@ fun HomeHeroSection(
                      visiblePages.forEach { layer ->
                          key(layer.itemIndex) {
                              val layerImageUrl = items[layer.itemIndex].banner ?: items[layer.itemIndex].poster
@@ -937,16 +1026,19 @@ index 4f58f00..187f561 100644
                              AsyncImage(
                                  model = layerImageUrl,
                                  contentDescription = items[layer.itemIndex].name,
-@@ -235,18 +232,14 @@ fun HomeHeroSection(
+                                 modifier = Modifier
+                                     .fillMaxSize()
                                      .graphicsLayer {
-                                         val offset = scrollOffsetPx
-                                         val scrollScale = heroBackgroundScrollScale(offset)
+-                                        val offset = scrollOffsetPx
+-                                        val scrollScale = heroBackgroundScrollScale(offset)
 -                                        alpha = layer.visibility * backdropFocus.revealAlpha
 +                                        alpha = layer.visibility
                                          translationX = -layer.offset * heroWidthPx * HERO_BACKGROUND_PARALLAX
-                                         translationY = heroBackgroundScrollTranslationY(offset)
-                                         scaleX = HERO_BACKGROUND_SCALE * scrollScale
-                                         scaleY = HERO_BACKGROUND_SCALE * scrollScale
+-                                        translationY = heroBackgroundScrollTranslationY(offset)
+-                                        scaleX = HERO_BACKGROUND_SCALE * scrollScale
+-                                        scaleY = HERO_BACKGROUND_SCALE * scrollScale
++                                        scaleX = HERO_BACKGROUND_SCALE
++                                        scaleY = HERO_BACKGROUND_SCALE
                                      },
 -                                alignment = backdropFocus.focusedAlignment(
 -                                    if (layout.isTablet) Alignment.TopCenter else Alignment.Center,
@@ -958,6 +1050,26 @@ index 4f58f00..187f561 100644
                              )
                          }
                      }
+@@ -572,19 +545,6 @@ private fun mobileHeroHeight(
+     return cappedHeight.coerceIn(minHeight, MOBILE_HERO_MAX_HEIGHT_DP.dp)
+ }
+ 
+-private fun heroBackgroundScrollScale(scrollOffsetPx: Float): Float {
+-    val scaleIncrease = if (scrollOffsetPx < 0f) {
+-        abs(scrollOffsetPx) * HERO_SCROLL_UP_SCALE_MULTIPLIER
+-    } else {
+-        scrollOffsetPx * HERO_SCROLL_DOWN_SCALE_MULTIPLIER
+-    }
+-    return (1f + scaleIncrease).coerceAtMost(HERO_SCROLL_MAX_SCALE)
+-}
+-
+-private fun heroBackgroundScrollTranslationY(scrollOffsetPx: Float): Float {
+-    return scrollOffsetPx * HERO_SCROLL_PARALLAX
+-}
+-
+ private fun Modifier.homeHeroPagerGesture(
+     pagerState: PagerState,
+     itemCount: Int,
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.kt
 new file mode 100644
 index 0000000..b6b63f4
@@ -1223,10 +1335,10 @@ index 249c5fe..457647c 100644
      }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt
 new file mode 100644
-index 0000000..e57295f
+index 0000000..62d6487
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt
-@@ -0,0 +1,1032 @@
+@@ -0,0 +1,1043 @@
 +package com.nuvio.app.features.streams
 +
 +import androidx.compose.foundation.ExperimentalFoundationApi
@@ -1578,6 +1690,9 @@ index 0000000..e57295f
 +    }
 +    SmartSource.entries.reversed().filter { it in filters.sources }.forEach { value ->
 +        add(SmartFilterChip(value.label) { updateFilters { it.copy(sources = it.sources - value) } })
++    }
++    if (filters.bigFiles != BigFileMode.OFF) {
++        add(SmartFilterChip(filters.bigFiles.label) { updateFilters { it.copy(bigFiles = BigFileMode.OFF) } })
 +    }
 +    if (filters.imax != ImaxMode.OFF) {
 +        add(SmartFilterChip(filters.imax.label) { updateFilters { it.copy(imax = ImaxMode.OFF) } })
@@ -1951,6 +2066,14 @@ index 0000000..e57295f
 +            selected = filters.imax,
 +            label = { it.label },
 +            onSelect = { mode -> updateFilters { it.copy(imax = mode) } },
++            modifier = Modifier.fillMaxWidth(),
++        )
++        SectionLabel("File size preference")
++        Segmented(
++            options = BigFileMode.entries.toList(),
++            selected = filters.bigFiles,
++            label = { it.label },
++            onSelect = { mode -> updateFilters { it.copy(bigFiles = mode) } },
 +            modifier = Modifier.fillMaxWidth(),
 +        )
 +        SectionLabel(stringResource(Res.string.smart_streams_section_file_size))
@@ -2818,10 +2941,10 @@ index 0000000..6beb0bc
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
 new file mode 100644
-index 0000000..533bfcb
+index 0000000..41d58fa
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
-@@ -0,0 +1,354 @@
+@@ -0,0 +1,370 @@
 +package com.nuvio.app.features.streams
 +
 +import kotlinx.coroutines.CoroutineDispatcher
@@ -3093,6 +3216,15 @@ index 0000000..533bfcb
 +        }
 +    }
 +
++    private fun sizeOrder(items: List<SmartRankedStream>, mode: BigFileMode): List<SmartRankedStream> =
++        when (mode) {
++            BigFileMode.OFF -> items
++            BigFileMode.PREFER -> items.sortedByDescending { it.info.sizeBytes }
++            BigFileMode.ONLY -> items.maxOfOrNull { it.info.sizeBytes ?: 0L }?.let { largest ->
++                items.filter { largest > 0L && it.info.sizeBytes == largest }
++            }.orEmpty()
++        }
++
 +    fun rankForAutoPlay(
 +        streams: List<StreamItem>,
 +        settings: SmartStreamSettings,
@@ -3114,7 +3246,8 @@ index 0000000..533bfcb
 +            .filter { matches(it.info, settings.filters.copy(hideLowQuality = true)) }
 +            .sortedWith(compareByDescending<SmartRankedStream> { it.score }.thenBy { it.index })
 +            .let { all -> all.filter { it.info.instant != SmartInstant.NO }.ifEmpty { all } }
-+        val ordered = if (settings.filters.imax == ImaxMode.PREFER) ranked.sortedByDescending { it.info.isImax } else ranked
++        val bySize = sizeOrder(ranked, settings.filters.bigFiles)
++        val ordered = if (settings.filters.imax == ImaxMode.PREFER) bySize.sortedByDescending { it.info.isImax } else bySize
 +        val best = ordered.firstOrNull()
 +        val goodEnough = best != null &&
 +            best.info.instant == SmartInstant.YES &&
@@ -3141,16 +3274,21 @@ index 0000000..533bfcb
 +                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
 +            }
 +        val eligible = if (settings.filters.imax == ImaxMode.ONLY) candidates.filter { it.info.isImax } else candidates
-+        val ordinaryQuality = eligible.filterNot { it.info.isLowQuality }.ifEmpty { eligible }
++        val matching = if (settings.filters.bigFiles == BigFileMode.OFF) eligible else eligible.filter { matches(it.info, settings.filters) }
++        val sized = if (settings.filters.bigFiles == BigFileMode.ONLY) sizeOrder(matching, BigFileMode.ONLY) else matching
++        val ordinaryQuality = sized.filterNot { it.info.isLowQuality }.ifEmpty { sized }
 +        val decent = if (settings.filters.imax == ImaxMode.PREFER) {
 +            ordinaryQuality.filter { it.info.isImax }.ifEmpty { ordinaryQuality }
 +        } else ordinaryQuality
-+        val top = decent.maxWithOrNull(compareBy<SmartRankedStream> { it.score }.thenByDescending { it.index })
++        val top = decent.maxWithOrNull(compareBy<SmartRankedStream> {
++            if (settings.filters.bigFiles == BigFileMode.PREFER) it.info.sizeBytes ?: 0L else 0L
++        }.thenBy { it.score }.thenByDescending { it.index })
 +        val best = top?.let { SmartPick(it.stream, it.info, reasons(it.info, device, target)) }
 +
 +        val filters = settings.filters
++        val largest = sized.firstOrNull()?.info?.sizeBytes
 +        val filteredGroups = listState.groups.map { group ->
-+            group.copy(streams = group.streams.filter { matches(infoOf(it), filters) })
++            group.copy(streams = group.streams.filter { matches(infoOf(it), filters) && (filters.bigFiles != BigFileMode.ONLY || (largest != null && infoOf(it).sizeBytes == largest)) })
 +        }
 +        val filteredState = listState.copy(groups = filteredGroups)
 +        val total = listState.filteredGroups.sumOf { it.streams.size }
@@ -3163,7 +3301,8 @@ index 0000000..533bfcb
 +                val info = infoOf(stream)
 +                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
 +            }
-+            sorted(ranked, settings.sortMode).map { it.stream }
++            val ordered = sorted(ranked, settings.sortMode)
++            (if (settings.sortMode == SmartSortMode.BEST_MATCH) sizeOrder(ordered, filters.bigFiles) else ordered).map { it.stream }
 +        }
 +
 +        return SmartStreamsResult(
@@ -3178,10 +3317,10 @@ index 0000000..533bfcb
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt
 new file mode 100644
-index 0000000..c724230
+index 0000000..89a9519
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt
-@@ -0,0 +1,139 @@
+@@ -0,0 +1,146 @@
 +package com.nuvio.app.features.streams
 +
 +import kotlinx.coroutines.flow.MutableStateFlow
@@ -3217,6 +3356,10 @@ index 0000000..c724230
 +    OFF("Off"), PREFER("Prefer IMAX"), ONLY("IMAX only")
 +}
 +
++internal enum class BigFileMode(val label: String) {
++    OFF("Off"), PREFER("Prefer larger"), ONLY("Largest only")
++}
++
 +internal data class SmartStreamFilters(
 +    val resolutions: Set<SmartResolution> = emptySet(),
 +    val hdr: Set<SmartHdrFilter> = emptySet(),
@@ -3226,10 +3369,11 @@ index 0000000..c724230
 +    val maxSizeGb: Int? = null,
 +    val instantOnly: Boolean = false,
 +    val hideLowQuality: Boolean = true,
++    val bigFiles: BigFileMode = BigFileMode.OFF,
 +    val imax: ImaxMode = ImaxMode.OFF,
 +) {
 +    val activeCount: Int
-+        get() = (if (imax == ImaxMode.OFF) 0 else 1) + resolutions.size + hdr.size + codecs.size + audio.size + sources.size +
++        get() = (if (bigFiles == BigFileMode.OFF) 0 else 1) + (if (imax == ImaxMode.OFF) 0 else 1) + resolutions.size + hdr.size + codecs.size + audio.size + sources.size +
 +            (if (maxSizeGb != null) 1 else 0) + (if (instantOnly) 1 else 0) + (if (!hideLowQuality) 1 else 0)
 +}
 +
@@ -3280,6 +3424,7 @@ index 0000000..c724230
 +            "audio=${f.audio.joinToString(",") { it.name }}",
 +            "source=${f.sources.joinToString(",") { it.name }}",
 +            "imax=${f.imax.name}",
++            "bigFiles=${f.bigFiles.name}",
 +            "maxgb=${f.maxSizeGb ?: ""}",
 +            "instant=${if (f.instantOnly) 1 else 0}",
 +            "lowq=${if (f.hideLowQuality) 1 else 0}",
@@ -3304,6 +3449,7 @@ index 0000000..c724230
 +                codecs = enumSet<SmartCodec>(map["codec"]),
 +                audio = enumSet<SmartAudio>(map["audio"]),
 +                sources = enumSet<SmartSource>(map["source"]),
++                bigFiles = enumOr(map["bigFiles"], BigFileMode.OFF),
 +                imax = enumOr(map["imax"], ImaxMode.OFF),
 +                maxSizeGb = map["maxgb"]?.toIntOrNull(),
 +                instantOnly = map["instant"] == "1",
@@ -3726,11 +3872,11 @@ index 0000000..9f9d7c5
 +    }
 +}
 diff --git a/iosApp/Configuration/Version.xcconfig b/iosApp/Configuration/Version.xcconfig
-index 32d7b2b..c8ac455 100644
+index 32d7b2b..e8d7ebd 100644
 --- a/iosApp/Configuration/Version.xcconfig
 +++ b/iosApp/Configuration/Version.xcconfig
 @@ -1,2 +1,2 @@
 -CURRENT_PROJECT_VERSION=159
 -MARKETING_VERSION=1.1.0-beta.2
-+CURRENT_PROJECT_VERSION=162
-+MARKETING_VERSION=1.1.0-beta.5
++CURRENT_PROJECT_VERSION=164
++MARKETING_VERSION=1.1.0-beta.7
