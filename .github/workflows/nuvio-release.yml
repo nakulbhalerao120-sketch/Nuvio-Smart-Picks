@@ -1,0 +1,87 @@
+name: Build and publish Nuvio v2
+on:
+  push:
+    branches: [main]
+    paths: ['release/recipe.json']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nuvio-android-release
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate release recipe
+        run: |
+          jq -e '.base | test("^[0-9a-f]{40}$")' release/recipe.json
+          jq -e '.build | type=="number" and .==floor and .>162' release/recipe.json
+          jq -e '.version | test("^[0-9]+[.][0-9]+[.][0-9]+(-beta[.][0-9]+)?$")' release/recipe.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Build reviewed source
+        run: |
+          set -eu
+          sdkmanager 'platforms;android-37.1' 'build-tools;36.0.0'
+          git init upstream
+          cd upstream
+          git fetch --depth=1 https://github.com/NuvioMedia/NuvioMobile.git "$(jq -r .base ../release/recipe.json)"
+          git checkout --detach FETCH_HEAD
+          git apply ../release/phone.patch
+          version=$(jq -r .version ../release/recipe.json)
+          code=$(jq -r .build ../release/recipe.json)
+          sed -i -E "s/^CURRENT_PROJECT_VERSION=.*/CURRENT_PROJECT_VERSION=$code/;s/^MARKETING_VERSION=.*/MARKETING_VERSION=$version/" iosApp/Configuration/Version.xcconfig
+          curl -fsS https://api.nuvio.tv/.well-known/nuvio > "$RUNNER_TEMP/account.json"
+          jq -er 'select((.backend_url | rtrimstr("/"))=="https://api.nuvio.tv") | .publishable_key | select(length>0 and (test("[\\r\\n]")|not))' "$RUNNER_TEMP/account.json" > "$RUNNER_TEMP/public-key"
+          printf 'NUVIO_SUPABASE_URL=https://api.nuvio.tv\nNUVIO_SUPABASE_ANON_KEY=%s\n' "$(cat "$RUNNER_TEMP/public-key")" > local.properties
+          ./gradlew :androidApp:assembleFullDebug -Pnuvio.android.distribution=full
+          cp "$(find androidApp/build/outputs/apk/full/debug -name '*.apk' -print -quit)" ../candidate.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate
+          path: candidate.apk
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidate
+      - name: Sign and verify release
+        env:
+          STORE: ${{ secrets.NUVIO_STORE_B64 }}
+          STOREPASS: ${{ secrets.NUVIO_STORE_PASSWORD }}
+        run: |
+          set -eu
+          B="$ANDROID_HOME/build-tools/36.0.0"
+          umask 077
+          trap 'rm -f "$RUNNER_TEMP/key.p12"' EXIT
+          printf %s "$STORE" | base64 -d > "$RUNNER_TEMP/key.p12"
+          "$B/apksigner" sign --ks "$RUNNER_TEMP/key.p12" --ks-pass env:STOREPASS --out Nuvio-v2.apk candidate.apk
+          "$B/apksigner" verify --print-certs Nuvio-v2.apk | grep -Fx 'Signer #1 certificate SHA-256 digest: ed8bbd033a867b7f43b5f19c11fb7658272819ef0195962d320466db6bb70745'
+          code=$(jq -r .build release/recipe.json)
+          version=$(jq -r .version release/recipe.json)
+          "$B/aapt" dump badging Nuvio-v2.apk > badging
+          grep -F "name='com.nakul.nuvio.smart.auto' versionCode='$code' versionName='$version'" badging
+          grep -F 'leanback-launchable-activity' badging
+          unzip -Z1 Nuvio-v2.apk > files
+          grep -E '^lib/armeabi-v7a/.*mpv.*[.]so$' files
+          grep -E '^lib/arm64-v8a/.*mpv.*[.]so$' files
+          zip -q Nuvio-v2.zip Nuvio-v2.apk release/recipe.json release/phone.patch
+      - name: Publish signed APK and source ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(jq -r .version release/recipe.json)
+          code=$(jq -r .build release/recipe.json)
+          flags=()
+          if [[ "$version" == *-beta.* ]]; then flags+=(--prerelease); fi
+          gh release create "auto-$version" Nuvio-v2.apk Nuvio-v2.zip --target "$GITHUB_SHA" --title "Nuvio v2 $version · Android and Fire TV · build $code" --notes "Signed universal Android and Fire TV release, build $code." "${flags[@]}"

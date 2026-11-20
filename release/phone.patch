@@ -1,0 +1,3736 @@
+diff --git a/androidApp/build.gradle.kts b/androidApp/build.gradle.kts
+index ae97ecc..475d6e0 100644
+--- a/androidApp/build.gradle.kts
++++ b/androidApp/build.gradle.kts
+@@ -157,15 +157,15 @@ android {
+ 
+ androidComponents {
+     onVariants(selector().withBuildType("debug")) { variant ->
+-        variant.applicationId.set("com.nuviodebug.com")
++        variant.applicationId.set("com.nakul.nuvio.smart.auto")
+     }
+     onVariants(selector().withBuildType("benchmark")) { variant ->
+-        variant.applicationId.set("com.nuviodebug.com")
++        variant.applicationId.set("com.nakul.nuvio.smart.auto")
+     }
+     onVariants { variant ->
+         val buildType = variant.buildType.orEmpty()
+         if (buildType.startsWith("nonMinified") || buildType.startsWith("benchmark") && buildType != "benchmark") {
+-            variant.applicationId.set("com.nuviodebug.com")
++            variant.applicationId.set("com.nakul.nuvio.smart.auto")
+             variant.signingConfig.setConfig(android.signingConfigs.getByName("debug"))
+         }
+     }
+diff --git a/androidApp/src/debug/res/values/strings.xml b/androidApp/src/debug/res/values/strings.xml
+index 0e9eb7a..8f63454 100644
+--- a/androidApp/src/debug/res/values/strings.xml
++++ b/androidApp/src/debug/res/values/strings.xml
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="app_name">Nuvio Debug</string>
++    <string name="app_name">Nuvio v2</string>
+ </resources>
+diff --git a/androidApp/src/full/AndroidManifest.xml b/androidApp/src/full/AndroidManifest.xml
+index 47497cd..1fb567b 100644
+--- a/androidApp/src/full/AndroidManifest.xml
++++ b/androidApp/src/full/AndroidManifest.xml
+@@ -3,4 +3,8 @@
+ 
+     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+ 
++    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
++    <application>
++        <receiver android:name="com.nuvio.app.features.updater.UpdateInstallReceiver" android:exported="false" />
++    </application>
+ </manifest>
+diff --git a/androidApp/src/main/AndroidManifest.xml b/androidApp/src/main/AndroidManifest.xml
+index a73b22a..f5a9f7c 100644
+--- a/androidApp/src/main/AndroidManifest.xml
++++ b/androidApp/src/main/AndroidManifest.xml
+@@ -8,11 +8,15 @@
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+ 
++    <uses-feature android:name="android.software.leanback" android:required="false" />
++    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
++
+     <application
+         android:name="com.nuvio.app.NuvioApplication"
+         android:allowBackup="false"
+         android:enableOnBackInvokedCallback="false"
+         android:icon="@mipmap/ic_launcher"
++        android:banner="@drawable/v2_tv_banner"
+         android:largeHeap="true"
+         android:label="@string/app_name"
+         android:usesCleartextTraffic="true"
+@@ -102,6 +106,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+@@ -117,6 +122,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+@@ -132,6 +138,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+@@ -147,6 +154,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+@@ -162,6 +170,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+@@ -177,6 +186,7 @@
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+             </intent-filter>
+         </activity>
+ 
+diff --git a/androidApp/src/main/res/drawable-xhdpi/v2_tv_banner.png b/androidApp/src/main/res/drawable-xhdpi/v2_tv_banner.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..4f0ba76c0d1c46dad7e365df2e6dbe7d496571a4
+GIT binary patch
+literal 3967
+zcmeH~_dgr#*T+K#H&rcFMK#qHEk$b+MAfLhO2lk$dxQ$1h^9lTy(^_^)vQr9ijqi3
+zth+X8%~*-u*g_Gpee*oOJ+J3q`2KLN*Y(qRz0T)+-sd{kTPq7AJ|0mX006*e{6OCZ
+z0N~JN-*McW?9=b{--ZAHzoD`Iy@yXTSH~lsnn8eE>mSYTi0Db3&yClX*v{+l(p!8t
+zc3og_%pOrW=;$O@Ng49%vtRv?fWD!Rt4#8{5tC|DNwKecpuc^UO0Glwj@a~@qjh>P
+zvd9NJ&$5ql=gHcvd9B^KiCPw|+hlPti34ChG$#)L#Ki(moO}J>_&*wWxidI*MdOb{
+z${Z;r#8vG4>A+EZ>Be%UhpK8-iX2Td)MtK(Rvnyw8Y8OmB-Bdg0uTBJ{`2Rn($Z?O
+zp!qgThOmNUj!p<;rIvTD90KI!Sy%H<!H9wMidYZz`gJE+UE;reoPRrsQ<w45S=z^e
+z$AG(Z4ul*ny?y|@57H*phA%plIjS(c*_rini=2jQ(N5TVC-xQF0w)_tO6mdKL!W>A
+z$m=Q_zUpC-ONu11o>JRsb^yDeI%~DNI)R-t8agtTxm)ns8f7T)DWlWP9aK;GH<T`d
+zF?%lJ&O6tGtEy5A7h2bZhlF6>o?V=qg)#KH@-9rNQLC?L6;;%hJ|9kUmgnairBxY(
+zga~i&CvlQ5WvF=*F&Hw<uF2m-KDEN7zJ+FYaH0}GQif@5Xrn?P92GBdUl*MST=ADT
+zgGuj8h)gGCpMHBv{bZu2e}8}W(rDK}eh4IpWg=VUd@)pLOxKN^CUB(^3<giq&<-h)
+zOs90xNyWf%;^yj}`T6~AVc}9!F<#zx<<9lb=u6D0g!QS<=2sY5F{*3B1XgiOfk`nA
+z+48<At}>FDDIEuNXUIG+__`<}DBZKMFcxL$@Vk348X9Rh_r@CdrBLU*Xv;u8wv*@E
+zok*icZ6kxXa!#I#_4J-kBPBrodDTBb?H(V%n#OL!{6U&G#gkN4SJ?U}DPk2B6_0D4
+zYW&$6ZE5+R^mFBdmmJH&!WSCQ?;5+vWEocT=%@xbVC+hb&shSY9Q(1Q^{uXA)An|C
+zp;`L(&|Swr_Yusn__q_yt4l-fP4wTTLgOVLqvAo~Ysm+royB1rtuZoo>L0b><o3oE
+z@c}m{=F&fn<=NHM)s)pe<X#=S@>HjmZ!Pd(-;LdZzc`K>>`Lu#4SabxCY!u1Z!Q+j
+z7<~L==dOW4Yt(gqBw_k%hFZ`vaNtR@l4(5ftHlu#KW&$Fpnb2%wD_T@&imp%5L*6E
+zXG}0+$)Q(4uN;T_8XUU|Ml~OBrIL1=j-qS8sSy!9d3pT*d@GAFliG(*#1+I`&o?~1
+zPzZq}%c!pLu|VQL!g@DU@sl#)#O;uj?1C@62<@nC^1@?DqpMA)&}d`to>X64b#<1C
+zd!jL`l;YRQUljtmM5qs6%dYmL3^u}apDPfw6_=*4-aW1MZE5w<WgTxmFWQ2!`0|nX
+z7uD5Fc8By0PmWTD1>8<!JD?@Azi$pASSW9Yl;^r^Bb%m_^}#MH`8}OA<TE4K8gm{{
+zJ8fAEa4)RFzS^(T#z}&?q)}R@UE^}^-`p8qY~_d55qzH!-FJ&yN2W)ds%ipvn&9*<
+zc5hch69p`Dgp{gqJ|}m!K7|;?AKDjInh0e?gcN4vXY%y=RZEaqaMD%|aBrV)=E^07
+z!wCA!7mq(^IljzEbGjrvAyB5G$snXv*!=}oIWTVOqY}FlZ$zMu%4~9+h{!UAL|;(H
+zbJa3)#IbGS^*inX;R`wpabA9w1)tcU@R*G56c;41If$3w1&mgAEMjeEHA-7#Q})a&
+z*cjpb=9!Bvp9n#dLVN4&Kn!e%Y=AVrsA4+X_TFb0FGN`G=o3V_&bf^#^D1&!G{EI#
+zH1THn$;p(LyGrIbBaGqoPW4;2ijCf9^}+~MRXpp!mhl4f<&-i<;vyc5Izqa6#O)+{
+z^`u|hs%KBB#FD7S-u0sPcw07oHa0fREW^?XhC=9s4-9tL8rL~vT9pa)8^%-mTQ_T5
+z*jDlC;Zu(Eu)QkC=IWp1$qPb4slErppmFn1cbDsZ=hN=uWz$d}ywbqOoN>Jo?hiu)
+zT(d_^KfgcQ#c{a*gan7f!I!|s;mJ<Vo*nJaO7pr1Ziv$?i*dqGA#5BJj(`yrt`$Wh
+z(1EG;rCC~tvn&!(#F}S)ym2jd<!vv_ZHIo_cEzHEt?SB2g)~qH`Hjk$>DOod{nkuM
+zY)LHv^vmJ}@DGo5ab3*WMo>7Kr)=PXX_U-`JO2L5<*ov^`BnFCBO*(id$^j}@IQ$X
+zR)8X|&Uw!os*0O%c*T{ulBQeV344l;lj<lW2!AK*OR{{EC`QU7K3CWm`Ox*(FGMK#
+z6OulL=1px8o*l4T?+P&s$js(rZk6ae|CINffQt53gqwxFv5JILjDMfrmoq%$@7Kba
+znZEb?tK2=}Dtjt_Tlh(a8zat_>UU&wGbEzltUXtJm+<=3nYs7pZal%_@|;~V;8cnq
+zGx@iFq-tFz(%i?w*(Lpf)u&yr#Q{s5kxE#;v;6#axg(Z6E`u<a@B-&}*@}?(z@DC-
+zslEY}e%QjfqrZ~TPj}Y;RJ5apVd0@x+bex#TPPtOgX4z!Q1JFlD{nEwRb6uf!dX~Y
+zD0JcC(&+l`=DcOj#;~-8`Z~X}klilU0|u*KDmCa%CC^_0;2c*oBVLpaAtAYUWd-X2
+z-rn=yCTpOCXhvo+jfqRS?jw9W(bhd5d$_-Cb5k8+mA4J->g-G|IK%aV*CHY!f*zP5
+z`y{xd?_L%C-((F_JRbiq2z9V<|EL*;MjHs~WZ@%94H^eNy0V$iP+c309xJtOJ{=j@
+zU}`F*G^f`3!Cji|Q3Q2=ivh(Jx^(84M<0<d2}V|=r3IZ4cs5>ygTmn@;!#((#&y=7
+zL}9C{4msNl4UMsLw9p5q)xluY&tWkH)!QPc<FGa0@+ZtAlU2WmYJWG){LN(aMiW;l
+zC3dpVI}0n$?Xd*Sr7>pXQS=f2_3e)2><^tV0=Cqef!9O*IddYrPsxf-w%MF3H=4Z$
+z!Uc7&9_~-Pa*d9ay5ZPmyC0cwhRr?X!H9U43f;n@S`s;*=Db7C=M&{A=j&Hczwt8a
+zyNm|-GTX2FZ{mBQUxNDwb~(br!e(?5987Yp2FriC&E$NLpx^&dm@OHkz^WPH&OPNi
+zui(5w@$M*d3O^$^{H^G8O^w4Lr35k4Ze4n6O^9+%ha46#`KxAp9JQV^X_4IzV{I+a
+zzTb;xbj2JT9IV&xW2oY(y~GEf%!Y`V21GH8io2kB*dSRq)Xy!IC3&3tYD>!qvEDn)
+z@ybXb(wBn*P-@G|b4OpPQF9I~pGwZyV@^)tyXo+|gsj^5Ur;Di&T;)zxC`qj&8;As
+z)zP`5pIiQdQx?~?iiroyl}L$8rGF6_kP6&8^3RpdLD6uBhx{76eYZuX0shrvp0W)W
+zH6GZ9je=~x5JMRqupF)6y6jgWwKHddvkk1?@F!r#{1<JMS6pkmG>@F3n3`8iFVjQ%
+z>zKPC|9qIQa=NVz$|VVz5)k0AJRGfpVuUh`V;sw}RigS1(A|>G&mbDyTxoa1wnl=!
+z_GAhw{m3`ErMK)AySuOIOZ#r-9#4q&G81H8dy$tnqy6~9>1R7_7$>5F(z#pO*Ec^m
+zrI)0utm1>{-@FsL=^%XIRQWltID<8?N5{KD8T}2YAGMHD^x@^PdWxBp6ISNVY$xo*
+z@xbP<E)zpgli3s$)$FS*n#*P6KUnnarc^-Dq;Ax{BfPebJ&k2k<hUoXlmtl6g79U5
+zz^Uj|7m37i?a0xkYOxp|D+Kcm_&i9fiQuX|Ut(9P4jLAjTN6WF8|udLvNlCAUaOkF
+z#5w+ubxdzKY;|$nzmcVl+UW?s>t@1#h;&%68%Hc_1|3<yH1+hP)kY~C4Ss@8zP7fq
+zI(PBB-0p;k`*8VjHO#1EhkqyjB&kMu_i=u%!WkM-`!~D({^V_xSB|7W2k-^^;Z3a&
+z+N4M-YndcM%<SGsaADG31t;dDr=&MN`m{s%*q)=gN&n%QIN0pD4Xr{}=smA+B}sU-
+znps#d@|u!gqZ&Sco}w}{;wD_)j@*w$UwoLvlQ=VdPlCO`xPy1h$d2fkmV#iQ#f3<1
+z;th5^DQkAzY;;<?5X7E6vB3Rb;}RqdOVQ=XjT^Au1nYLoCl_gu2ag|HKYf~%%}=X~
+zpbjcnc9Y4XD{7I4Z9j!vxQi)%YDeEazfbzu0{3n|PPt8!6_|=*0pB3``jdP^gin<Z
+zZc1@s46&fl96}GtyT|1mHs5A12gJWOA4N6SFSA#0t?II+cw0IYNHlW1dq<g$%CAT6
+z-FB|CDN~)UBqT|a6D6@WntyW6Mr&(m-aNsHj0%O+s)Wl$tjJ5MtR5Y5#l~Nbe~XFQ
+zy4gxQm7b9Qs-H@2?*89}Q(Rm;X}fx5Wo2VyLlIjwFfgFtYGR=kEiW-`mfj?Yesq!h
+u4&ZS`$1UZi<-a&iUp@2R_<tI#G%luN?tIm>`N95J1B?wU^vm@gz5EX_{4h%Z
+
+literal 0
+HcmV?d00001
+
+diff --git a/composeApp/src/androidFull/AndroidManifest.xml b/composeApp/src/androidFull/AndroidManifest.xml
+index 47497cd..1fb567b 100644
+--- a/composeApp/src/androidFull/AndroidManifest.xml
++++ b/composeApp/src/androidFull/AndroidManifest.xml
+@@ -3,4 +3,8 @@
+ 
+     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+ 
++    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
++    <application>
++        <receiver android:name="com.nuvio.app.features.updater.UpdateInstallReceiver" android:exported="false" />
++    </application>
+ </manifest>
+diff --git a/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AndroidAppUpdaterPlatform.kt b/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AndroidAppUpdaterPlatform.kt
+index fda977b..d48caf2 100644
+--- a/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AndroidAppUpdaterPlatform.kt
++++ b/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AndroidAppUpdaterPlatform.kt
+@@ -1,5 +1,9 @@
+ package com.nuvio.app.features.updater
+ 
++import android.app.PendingIntent
++import android.content.BroadcastReceiver
++import android.content.pm.PackageInstaller
++import android.widget.Toast
+ import android.content.Context
+ import android.content.Intent
+ import android.content.pm.ApplicationInfo
+@@ -97,6 +101,7 @@ object AndroidAppUpdaterPlatform {
+                     FileOutputStream(destination).use { output ->
+                         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                         var downloadedBytes = 0L
++                        var lastProgressAt = 0L
+                         while (true) {
+                             currentCoroutineContext().ensureActive()
+                             val read = input.read(buffer)
+@@ -104,7 +109,11 @@ object AndroidAppUpdaterPlatform {
+                             if (read <= 0) break
+                             output.write(buffer, 0, read)
+                             downloadedBytes += read
+-                            onProgress(downloadedBytes, totalBytes)
++                            val now = android.os.SystemClock.elapsedRealtime()
++                            if (now - lastProgressAt >= 200L || downloadedBytes == totalBytes) {
++                                lastProgressAt = now
++                                onProgress(downloadedBytes, totalBytes)
++                            }
+                         }
+                         output.flush()
+                     }
+@@ -144,6 +153,31 @@ object AndroidAppUpdaterPlatform {
+         val apkFile = File(path)
+         check(apkFile.exists()) { runBlocking { getString(Res.string.updates_downloaded_file_missing) } }
+ 
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
++            val installer = context.packageManager.packageInstaller
++            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
++                setAppPackageName(context.packageName)
++                setSize(apkFile.length())
++                setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
++            }
++            val id = installer.createSession(params)
++            try {
++                installer.openSession(id).use { session ->
++                    session.openWrite("base.apk", 0, apkFile.length()).use { output ->
++                        apkFile.inputStream().use { it.copyTo(output) }
++                        session.fsync(output)
++                    }
++                    val callback = PendingIntent.getBroadcast(context, id,
++                        Intent(context, UpdateInstallReceiver::class.java), PendingIntent.FLAG_MUTABLE)
++                    session.commit(callback.intentSender)
++                }
++            } catch (failure: Exception) {
++                installer.abandonSession(id)
++                throw failure
++            }
++            return@runCatching
++        }
++
+         val apkUri = FileProvider.getUriForFile(
+             context,
+             "${context.packageName}.fileprovider",
+@@ -163,3 +197,18 @@ object AndroidAppUpdaterPlatform {
+     private fun requireContext(): Context =
+         requireNotNull(appContext) { "AndroidAppUpdaterPlatform.initialize must be called before use." }
+ }
++
++class UpdateInstallReceiver : BroadcastReceiver() {
++    override fun onReceive(context: Context, intent: Intent) {
++        when (intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)) {
++            PackageInstaller.STATUS_PENDING_USER_ACTION -> {
++                @Suppress("DEPRECATION")
++                val confirmation = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT)
++                confirmation?.let { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
++            }
++            PackageInstaller.STATUS_SUCCESS -> Unit
++            else -> Toast.makeText(context, intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
++                ?: "Android could not install the update.", Toast.LENGTH_LONG).show()
++        }
++    }
++}
+diff --git a/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.android.kt b/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.android.kt
+index 258c620..13b3a67 100644
+--- a/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.android.kt
++++ b/composeApp/src/androidFull/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.android.kt
+@@ -3,7 +3,7 @@ package com.nuvio.app.features.updater
+ actual object AppUpdaterPlatform {
+     actual val isSupported: Boolean = true
+     actual val isDebugBuild: Boolean
+-        get() = AndroidAppUpdaterPlatform.isDebugBuild()
++        get() = false
+ 
+     actual fun getSupportedAbis(): List<String> = AndroidAppUpdaterPlatform.getSupportedAbis()
+ 
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/MainActivity.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/MainActivity.kt
+index eee68bd..ec048d2 100644
+--- a/composeApp/src/androidMain/kotlin/com/nuvio/app/MainActivity.kt
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/MainActivity.kt
+@@ -65,6 +65,7 @@ import com.nuvio.app.core.ui.CardDepthStyleStorage
+ import com.nuvio.app.core.ui.PosterCardStyleStorage
+ import com.nuvio.app.core.poster.CustomPosterUrlStorage
+ import com.nuvio.app.features.watched.WatchedStorage
++import com.nuvio.app.features.streams.SmartStreamSettingsStorage
+ import com.nuvio.app.features.streams.StreamLinkCacheStorage
+ import com.nuvio.app.features.streams.StreamBadgeSettingsStorage
+ import com.nuvio.app.features.streams.BingeGroupCacheStorage
+@@ -76,6 +77,56 @@ import com.nuvio.app.features.watchprogress.WatchProgressStorage
+ open class MainActivity : AppCompatActivity() {
+     private var pipRemoteActionReceiver: PipRemoteActionReceiver? = null
+ 
++    private var remotePointer: android.view.View? = null
++
++    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
++        val isTv = resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_TYPE_MASK ==
++            android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
++        if (!isTv) return super.dispatchKeyEvent(event)
++        val root = window.decorView as? android.view.ViewGroup ?: return super.dispatchKeyEvent(event)
++        val down = event.action == android.view.KeyEvent.ACTION_DOWN
++        if (event.keyCode == android.view.KeyEvent.KEYCODE_MENU) {
++            if (down && event.repeatCount == 0) {
++                val old = remotePointer
++                if (old != null) {
++                    root.removeView(old)
++                    remotePointer = null
++                } else {
++                    val size = (18 * resources.displayMetrics.density).toInt().coerceAtLeast(12)
++                    val dot = android.view.View(this)
++                    dot.background = android.graphics.drawable.GradientDrawable().apply {
++                        shape = android.graphics.drawable.GradientDrawable.OVAL
++                        setColor(0x803399ff.toInt())
++                        setStroke(2, android.graphics.Color.WHITE)
++                    }
++                    root.addView(dot, size, size)
++                    dot.x = root.width / 2f
++                    dot.y = root.height / 2f
++                    remotePointer = dot
++                }
++            }
++            return true
++        }
++        val dot = remotePointer ?: return super.dispatchKeyEvent(event)
++        val step = root.width / (if (event.repeatCount > 2) 32f else 96f)
++        when (event.keyCode) {
++            android.view.KeyEvent.KEYCODE_DPAD_LEFT -> if (down) dot.x = (dot.x - step).coerceAtLeast(0f)
++            android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> if (down) dot.x = (dot.x + step).coerceAtMost((root.width - dot.width).toFloat())
++            android.view.KeyEvent.KEYCODE_DPAD_UP -> if (down) dot.y = (dot.y - step).coerceAtLeast(0f)
++            android.view.KeyEvent.KEYCODE_DPAD_DOWN -> if (down) dot.y = (dot.y + step).coerceAtMost((root.height - dot.height).toFloat())
++            android.view.KeyEvent.KEYCODE_DPAD_CENTER, android.view.KeyEvent.KEYCODE_ENTER -> if (!down) {
++                val x = dot.x + dot.width / 2f
++                val y = dot.y + dot.height / 2f
++                for (action in intArrayOf(android.view.MotionEvent.ACTION_DOWN, android.view.MotionEvent.ACTION_UP)) {
++                    val motion = android.view.MotionEvent.obtain(event.downTime, event.eventTime, action, x, y, 0)
++                    try { root.dispatchTouchEvent(motion) } finally { motion.recycle() }
++                }
++            }
++            else -> return super.dispatchKeyEvent(event)
++        }
++        return true
++    }
++
+     override fun onCreate(savedInstanceState: Bundle?) {
+         installSplashScreen()
+         enableEdgeToEdge(
+@@ -136,6 +187,8 @@ open class MainActivity : AppCompatActivity() {
+         EpisodeReleaseNotificationsStorage.initialize(applicationContext)
+         WatchProgressStorage.initialize(applicationContext)
+         StreamLinkCacheStorage.initialize(applicationContext)
++        SmartStreamSettingsStorage.initialize(applicationContext)
++        com.nuvio.app.features.downloads.DownloadNetworkGuard.initialize(applicationContext)
+         StreamBadgeSettingsStorage.initialize(applicationContext)
+         BingeGroupCacheStorage.initialize(applicationContext)
+         PluginStorage.initialize(applicationContext)
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.android.kt
+new file mode 100644
+index 0000000..baaab37
+--- /dev/null
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.android.kt
+@@ -0,0 +1,50 @@
++package com.nuvio.app.features.downloads
++
++import android.content.Context
++import android.net.ConnectivityManager
++import android.net.NetworkCapabilities
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.asStateFlow
++
++actual object DownloadNetworkGuard {
++    private var connectivityManager: ConnectivityManager? = null
++    private val _transportState = MutableStateFlow(true)
++    actual val transportState = _transportState.asStateFlow()
++
++    fun initialize(context: Context) {
++        if (connectivityManager != null) return
++        val manager = context.applicationContext
++            .getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
++        connectivityManager = manager
++        _transportState.value = isOnWifi()
++        runCatching {
++            // Use the values passed in; activeNetwork can be stale while callbacks are delivered.
++            manager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
++                private var current: android.net.Network? = null
++                override fun onAvailable(network: android.net.Network) {
++                    current = network
++                    manager.getNetworkCapabilities(network)?.let { _transportState.value = it.isUnmetered() }
++                }
++                override fun onCapabilitiesChanged(network: android.net.Network, capabilities: NetworkCapabilities) {
++                    current = network
++                    _transportState.value = capabilities.isUnmetered()
++                }
++                override fun onLost(network: android.net.Network) {
++                    if (network != current) return
++                    current = null
++                    _transportState.value = false
++                }
++            })
++        }
++    }
++
++    /** True on an unmetered network, the same rule as the download job's NETWORK_TYPE_UNMETERED. */
++    actual fun isOnWifi(): Boolean {
++        val manager = connectivityManager ?: return true
++        val capabilities = manager.activeNetwork?.let(manager::getNetworkCapabilities) ?: return false
++        return capabilities.isUnmetered()
++    }
++
++    private fun NetworkCapabilities.isUnmetered(): Boolean =
++        hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
++}
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.android.kt
+new file mode 100644
+index 0000000..b22bfd8
+--- /dev/null
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.android.kt
+@@ -0,0 +1,14 @@
++package com.nuvio.app.features.player
++
++import java.io.File
++
++internal actual object PlaybackMemoryInfo {
++    actual fun deviceMemoryMb(): Int = runCatching {
++        File("/proc/meminfo").useLines { lines ->
++            lines.first { it.startsWith("MemTotal:") }.filter(Char::isDigit).toLong() / 1024L
++        }.toInt()
++    }.getOrDefault(4096)
++
++    actual fun javaHeapBufferLimitMb(): Int =
++        (Runtime.getRuntime().maxMemory() / (4L * 1024L * 1024L)).toInt().coerceAtLeast(32)
++}
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.android.kt
+new file mode 100644
+index 0000000..e982952
+--- /dev/null
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.android.kt
+@@ -0,0 +1,92 @@
++package com.nuvio.app.features.streams
++
++import android.content.Context
++import android.content.res.Configuration
++import android.content.res.Resources
++import android.hardware.display.DisplayManager
++import android.media.MediaCodecInfo
++import android.media.MediaCodecInfo.CodecProfileLevel
++import android.media.MediaCodecList
++import android.os.Build
++import android.view.Display
++
++internal object SmartStreamDeviceContext {
++    var context: Context? = null
++}
++
++private const val MIME_HEVC = "video/hevc"
++private const val MIME_AV1 = "video/av01"
++private const val MIME_DOLBY_VISION = "video/dolby-vision"
++
++internal actual fun readSmartScreenInfo(): SmartScreenInfo {
++    val context = SmartStreamDeviceContext.context
++    val displayManager = context?.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager
++    val display = displayManager?.getDisplay(Display.DEFAULT_DISPLAY)
++    val mode = display?.mode
++    val metrics = Resources.getSystem().displayMetrics
++    val width = mode?.physicalWidth ?: metrics.widthPixels
++    val height = mode?.physicalHeight ?: metrics.heightPixels
++    val longSide = maxOf(width, height)
++    val shortSide = minOf(width, height)
++    val configuration = context?.resources?.configuration
++    val smallestWidthDp = configuration?.smallestScreenWidthDp ?: (shortSide / metrics.density).toInt()
++    val externalDisplay = (displayManager?.getDisplays(DisplayManager.DISPLAY_CATEGORY_PRESENTATION)?.size ?: 0) > 0
++    val decoders = hardwareVideoDecoders()
++    val hevcDecoders = decoders.filter { it.supports(MIME_HEVC) }
++    val av1Decoders = decoders.filter { it.supports(MIME_AV1) }
++    val decodes4k = hevcDecoders.any { it.decodes4k(MIME_HEVC, CodecProfileLevel.HEVCProfileMain10) } ||
++        av1Decoders.any { it.decodes4k(MIME_AV1, CodecProfileLevel.AV1ProfileMain10) }
++    return SmartScreenInfo(
++        longSidePx = longSide,
++        shortSidePx = shortSide,
++        hdrFormats = displayHdrFormats(display, hasDolbyVisionDecoder = decoders.any { it.supports(MIME_DOLBY_VISION) }),
++        hevcHardware = hevcDecoders.isNotEmpty(),
++        av1Hardware = av1Decoders.isNotEmpty(),
++        decodes4k = decodes4k,
++        externalDisplay = externalDisplay,
++        isTablet = smallestWidthDp >= 600 ||
++            ((configuration?.screenLayout ?: 0) and Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE,
++    )
++}
++
++@Suppress("DEPRECATION")
++private fun displayHdrFormats(display: Display?, hasDolbyVisionDecoder: Boolean): Set<SmartHdr> {
++    val types = runCatching { display?.hdrCapabilities?.supportedHdrTypes }.getOrNull() ?: return emptySet()
++    return buildSet {
++        types.forEach { type ->
++            when (type) {
++                Display.HdrCapabilities.HDR_TYPE_HDR10 -> add(SmartHdr.HDR10)
++                Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS -> add(SmartHdr.HDR10_PLUS)
++                Display.HdrCapabilities.HDR_TYPE_DOLBY_VISION -> if (hasDolbyVisionDecoder) add(SmartHdr.DOLBY_VISION)
++            }
++        }
++    }
++}
++
++private fun hardwareVideoDecoders(): List<MediaCodecInfo> = runCatching {
++    MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.filter { info ->
++        !info.isEncoder && info.isHardwareDecoder()
++    }
++}.getOrDefault(emptyList())
++
++private fun MediaCodecInfo.isHardwareDecoder(): Boolean =
++    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
++        isHardwareAccelerated
++    } else {
++        val lower = name.lowercase()
++        !lower.startsWith("omx.google.") && !lower.startsWith("c2.android.") && !lower.contains(".sw.")
++    }
++
++private fun MediaCodecInfo.supports(mime: String): Boolean =
++    supportedTypes.any { it.equals(mime, ignoreCase = true) }
++
++private fun MediaCodecInfo.decodes4k(mime: String, main10Profile: Int): Boolean = runCatching {
++    val type = supportedTypes.first { it.equals(mime, ignoreCase = true) }
++    val capabilities = getCapabilitiesForType(type)
++    val video = capabilities.videoCapabilities ?: return@runCatching false
++    val sizeOk = video.isSizeSupported(3840, 2160) || video.isSizeSupported(3840, 1600)
++    val rateOk = video.areSizeAndRateSupported(3840, 2160, 23.976) ||
++        video.areSizeAndRateSupported(3840, 1600, 23.976)
++    val main10 = capabilities.profileLevels.any { it.profile == main10Profile }
++    sizeOk && rateOk && main10
++}.getOrDefault(false)
+diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.android.kt
+new file mode 100644
+index 0000000..c9d2d36
+--- /dev/null
++++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.android.kt
+@@ -0,0 +1,23 @@
++package com.nuvio.app.features.streams
++
++import android.content.Context
++import android.content.SharedPreferences
++import com.nuvio.app.core.storage.ProfileScopedKey
++
++internal actual object SmartStreamSettingsStorage {
++    private const val preferencesName = "nuvio_smart_stream_settings"
++    private const val settingsKey = "smart_stream_sort_filter_settings"
++
++    private var preferences: SharedPreferences? = null
++
++    fun initialize(context: Context) {
++        preferences = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
++        SmartStreamDeviceContext.context = context.applicationContext
++    }
++
++    actual fun load(): String? = preferences?.getString(ProfileScopedKey.of(settingsKey), null)
++
++    actual fun save(value: String) {
++        preferences?.edit()?.putString(ProfileScopedKey.of(settingsKey), value)?.apply()
++    }
++}
+diff --git a/composeApp/src/commonMain/composeResources/values-id/strings_smart_streams.xml b/composeApp/src/commonMain/composeResources/values-id/strings_smart_streams.xml
+new file mode 100644
+index 0000000..fe8177f
+--- /dev/null
++++ b/composeApp/src/commonMain/composeResources/values-id/strings_smart_streams.xml
+@@ -0,0 +1,88 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="smart_streams_play_best">Putar yang terbaik untuk perangkat ini</string>
++    <string name="smart_streams_filters">Filter</string>
++    <string name="smart_streams_remove_filter">Hapus filter %1$s</string>
++    <string name="smart_streams_clear_all">Hapus semua</string>
++    <string name="smart_streams_count">%1$d DARI %2$d STREAM · %3$s</string>
++    <string name="smart_streams_order_best">PALING COCOK DULU</string>
++    <string name="smart_streams_order_quality">KUALITAS TERTINGGI DULU</string>
++    <string name="smart_streams_order_smallest">TERKECIL DULU</string>
++    <string name="smart_streams_order_largest">TERBESAR DULU</string>
++    <string name="smart_streams_order_addon">PER ADDON</string>
++    <string name="smart_streams_chip_under_size">Di bawah %1$d GB</string>
++    <string name="smart_streams_instant_only">Hanya instan</string>
++    <string name="smart_streams_instant_only_description">Stream yang langsung mulai tanpa menunggu</string>
++    <string name="smart_streams_showing_low_quality">Menampilkan kualitas rendah</string>
++    <string name="smart_streams_hide_low_quality">Sembunyikan kualitas rendah</string>
++    <string name="smart_streams_hide_low_quality_description">Rekaman CAM, telesync, dan screener</string>
++    <string name="smart_streams_sort_title">Urutkan stream</string>
++    <string name="smart_streams_remember">Gunakan untuk semua judul</string>
++    <string name="smart_streams_remember_description">Ingat urutan dan filter ini untuk berikutnya</string>
++    <string name="smart_streams_section_resolution">RESOLUSI</string>
++    <string name="smart_streams_section_hdr">HDR</string>
++    <string name="smart_streams_section_video">VIDEO</string>
++    <string name="smart_streams_section_audio">AUDIO</string>
++    <string name="smart_streams_section_source">SUMBER</string>
++    <string name="smart_streams_section_file_size">UKURAN FILE</string>
++    <string name="smart_streams_size_any">Semua</string>
++    <string name="smart_streams_size_under">&lt; %1$d GB</string>
++    <string name="smart_streams_reset">Atur ulang</string>
++    <string name="smart_streams_show_count">Tampilkan %1$d stream</string>
++    <string name="smart_streams_best_title">Terbaik untuk perangkat ini</string>
++    <string name="smart_streams_this_device">PERANGKAT INI</string>
++    <string name="smart_streams_screen">Layar</string>
++    <string name="smart_streams_smooth_video">Video lancar</string>
++    <string name="smart_streams_memory">Memori</string>
++    <string name="smart_streams_connection">Koneksi</string>
++    <string name="smart_streams_why">KENAPA STREAM INI</string>
++    <string name="smart_streams_highest_resolution">Resolusi tertinggi</string>
++    <string name="smart_streams_on_mobile_data">Saat data seluler</string>
++    <string name="smart_streams_play_this">Putar stream ini</string>
++    <string name="smart_streams_empty_title">Tidak ada stream yang cocok dengan filter</string>
++    <string name="smart_streams_empty_message">Beberapa addon tidak mencantumkan kualitas di nama stream, jadi stream itu tidak bisa difilter.</string>
++    <string name="smart_streams_clear_filters">Hapus filter</string>
++    <string name="smart_streams_best_match">Paling cocok</string>
++    <string name="smart_streams_sort_best">Paling cocok</string>
++    <string name="smart_streams_sort_best_description">Terbaik untuk perangkat ini dulu · disarankan</string>
++    <string name="smart_streams_sort_quality">Kualitas tertinggi</string>
++    <string name="smart_streams_sort_quality_description">4K dulu, lalu HDR, lalu 1080p</string>
++    <string name="smart_streams_sort_smallest">File terkecil</string>
++    <string name="smart_streams_sort_smallest_description">Lebih cepat mulai dan hemat data</string>
++    <string name="smart_streams_sort_largest">File terbesar</string>
++    <string name="smart_streams_sort_largest_description">Biasanya bitrate tertinggi</string>
++    <string name="smart_streams_sort_addon">Urutan addon</string>
++    <string name="smart_streams_sort_addon_description">Dikelompokkan per addon, seperti sebelumnya</string>
++    <string name="smart_streams_limit_auto">Otomatis</string>
++    <string name="smart_streams_mobile_save_data">Hemat data</string>
++    <string name="smart_streams_mobile_best_quality">Kualitas terbaik</string>
++    <string name="smart_streams_codec_other">Lainnya</string>
++    <string name="smart_streams_audio_stereo">Stereo</string>
++    <string name="smart_streams_tv_connected">TV terhubung</string>
++    <string name="smart_streams_software">%1$s (software)</string>
++    <string name="smart_streams_up_to">hingga %1$s</string>
++    <string name="smart_streams_wifi">Wi-Fi</string>
++    <string name="smart_streams_mobile_data">Data seluler</string>
++    <string name="smart_streams_reason_instant">Instan, langsung mulai tanpa menunggu</string>
++    <string name="smart_streams_reason_not_instant">Perlu dimuat dulu (tidak ada stream instan)</string>
++    <string name="smart_streams_reason_sharpest_screen">%1$s, paling tajam untuk layar ini (sekitar %2$d baris)</string>
++    <string name="smart_streams_reason_sharpest_limit">%1$s, paling tajam dalam batasmu</string>
++    <string name="smart_streams_reason_codec_chip">%1$s, didekode oleh chip perangkat</string>
++    <string name="smart_streams_reason_h264">H.264, diputar lancar oleh chip perangkat</string>
++    <string name="smart_streams_reason_hdr">%1$s, dan layarmu mendukungnya</string>
++    <string name="smart_streams_reason_memory">Memori %1$s, cukup untuk 4K</string>
++    <string name="smart_streams_reason_kept_1080">Dibatasi 1080p agar lancar di perangkat ini</string>
++    <string name="smart_streams_reason_size">%1$s, wajar untuk %2$s</string>
++    <string name="smart_streams_preferences_title">Smart Streams</string>
++    <string name="smart_streams_preferences_description">Cara stream diurutkan, difilter, dan dipilih sebagai yang terbaik untuk perangkat ini</string>
++    <string name="smart_streams_section_sort">URUTAN</string>
++    <string name="smart_streams_settings_section">SMART STREAMS</string>
++    <string name="smart_streams_settings_row">Preferensi</string>
++    <string name="smart_streams_settings_row_description">Urutan, filter, resolusi tertinggi, dan data seluler</string>
++    <string name="smart_streams_instant">Instan</string>
++    <string name="smart_streams_autoplay_mode">Putar otomatis cerdas</string>
++    <string name="smart_streams_autoplay_mode_description">Memilih stream terbaik untuk perangkat ini sesuai preferensi Smart Streams lalu memutarnya</string>
++    <string name="smart_streams_autoplay_searching">Mencari sumber terbaik… %1$d/%2$d</string>
++    <string name="smart_streams_autoplay_candidate">Terbaik sejauh ini: %1$s</string>
++    <string name="smart_streams_reason_language">Audio %1$s, bahasa pilihanmu</string>
++</resources>
+diff --git a/composeApp/src/commonMain/composeResources/values-in/strings_smart_streams.xml b/composeApp/src/commonMain/composeResources/values-in/strings_smart_streams.xml
+new file mode 100644
+index 0000000..fe8177f
+--- /dev/null
++++ b/composeApp/src/commonMain/composeResources/values-in/strings_smart_streams.xml
+@@ -0,0 +1,88 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="smart_streams_play_best">Putar yang terbaik untuk perangkat ini</string>
++    <string name="smart_streams_filters">Filter</string>
++    <string name="smart_streams_remove_filter">Hapus filter %1$s</string>
++    <string name="smart_streams_clear_all">Hapus semua</string>
++    <string name="smart_streams_count">%1$d DARI %2$d STREAM · %3$s</string>
++    <string name="smart_streams_order_best">PALING COCOK DULU</string>
++    <string name="smart_streams_order_quality">KUALITAS TERTINGGI DULU</string>
++    <string name="smart_streams_order_smallest">TERKECIL DULU</string>
++    <string name="smart_streams_order_largest">TERBESAR DULU</string>
++    <string name="smart_streams_order_addon">PER ADDON</string>
++    <string name="smart_streams_chip_under_size">Di bawah %1$d GB</string>
++    <string name="smart_streams_instant_only">Hanya instan</string>
++    <string name="smart_streams_instant_only_description">Stream yang langsung mulai tanpa menunggu</string>
++    <string name="smart_streams_showing_low_quality">Menampilkan kualitas rendah</string>
++    <string name="smart_streams_hide_low_quality">Sembunyikan kualitas rendah</string>
++    <string name="smart_streams_hide_low_quality_description">Rekaman CAM, telesync, dan screener</string>
++    <string name="smart_streams_sort_title">Urutkan stream</string>
++    <string name="smart_streams_remember">Gunakan untuk semua judul</string>
++    <string name="smart_streams_remember_description">Ingat urutan dan filter ini untuk berikutnya</string>
++    <string name="smart_streams_section_resolution">RESOLUSI</string>
++    <string name="smart_streams_section_hdr">HDR</string>
++    <string name="smart_streams_section_video">VIDEO</string>
++    <string name="smart_streams_section_audio">AUDIO</string>
++    <string name="smart_streams_section_source">SUMBER</string>
++    <string name="smart_streams_section_file_size">UKURAN FILE</string>
++    <string name="smart_streams_size_any">Semua</string>
++    <string name="smart_streams_size_under">&lt; %1$d GB</string>
++    <string name="smart_streams_reset">Atur ulang</string>
++    <string name="smart_streams_show_count">Tampilkan %1$d stream</string>
++    <string name="smart_streams_best_title">Terbaik untuk perangkat ini</string>
++    <string name="smart_streams_this_device">PERANGKAT INI</string>
++    <string name="smart_streams_screen">Layar</string>
++    <string name="smart_streams_smooth_video">Video lancar</string>
++    <string name="smart_streams_memory">Memori</string>
++    <string name="smart_streams_connection">Koneksi</string>
++    <string name="smart_streams_why">KENAPA STREAM INI</string>
++    <string name="smart_streams_highest_resolution">Resolusi tertinggi</string>
++    <string name="smart_streams_on_mobile_data">Saat data seluler</string>
++    <string name="smart_streams_play_this">Putar stream ini</string>
++    <string name="smart_streams_empty_title">Tidak ada stream yang cocok dengan filter</string>
++    <string name="smart_streams_empty_message">Beberapa addon tidak mencantumkan kualitas di nama stream, jadi stream itu tidak bisa difilter.</string>
++    <string name="smart_streams_clear_filters">Hapus filter</string>
++    <string name="smart_streams_best_match">Paling cocok</string>
++    <string name="smart_streams_sort_best">Paling cocok</string>
++    <string name="smart_streams_sort_best_description">Terbaik untuk perangkat ini dulu · disarankan</string>
++    <string name="smart_streams_sort_quality">Kualitas tertinggi</string>
++    <string name="smart_streams_sort_quality_description">4K dulu, lalu HDR, lalu 1080p</string>
++    <string name="smart_streams_sort_smallest">File terkecil</string>
++    <string name="smart_streams_sort_smallest_description">Lebih cepat mulai dan hemat data</string>
++    <string name="smart_streams_sort_largest">File terbesar</string>
++    <string name="smart_streams_sort_largest_description">Biasanya bitrate tertinggi</string>
++    <string name="smart_streams_sort_addon">Urutan addon</string>
++    <string name="smart_streams_sort_addon_description">Dikelompokkan per addon, seperti sebelumnya</string>
++    <string name="smart_streams_limit_auto">Otomatis</string>
++    <string name="smart_streams_mobile_save_data">Hemat data</string>
++    <string name="smart_streams_mobile_best_quality">Kualitas terbaik</string>
++    <string name="smart_streams_codec_other">Lainnya</string>
++    <string name="smart_streams_audio_stereo">Stereo</string>
++    <string name="smart_streams_tv_connected">TV terhubung</string>
++    <string name="smart_streams_software">%1$s (software)</string>
++    <string name="smart_streams_up_to">hingga %1$s</string>
++    <string name="smart_streams_wifi">Wi-Fi</string>
++    <string name="smart_streams_mobile_data">Data seluler</string>
++    <string name="smart_streams_reason_instant">Instan, langsung mulai tanpa menunggu</string>
++    <string name="smart_streams_reason_not_instant">Perlu dimuat dulu (tidak ada stream instan)</string>
++    <string name="smart_streams_reason_sharpest_screen">%1$s, paling tajam untuk layar ini (sekitar %2$d baris)</string>
++    <string name="smart_streams_reason_sharpest_limit">%1$s, paling tajam dalam batasmu</string>
++    <string name="smart_streams_reason_codec_chip">%1$s, didekode oleh chip perangkat</string>
++    <string name="smart_streams_reason_h264">H.264, diputar lancar oleh chip perangkat</string>
++    <string name="smart_streams_reason_hdr">%1$s, dan layarmu mendukungnya</string>
++    <string name="smart_streams_reason_memory">Memori %1$s, cukup untuk 4K</string>
++    <string name="smart_streams_reason_kept_1080">Dibatasi 1080p agar lancar di perangkat ini</string>
++    <string name="smart_streams_reason_size">%1$s, wajar untuk %2$s</string>
++    <string name="smart_streams_preferences_title">Smart Streams</string>
++    <string name="smart_streams_preferences_description">Cara stream diurutkan, difilter, dan dipilih sebagai yang terbaik untuk perangkat ini</string>
++    <string name="smart_streams_section_sort">URUTAN</string>
++    <string name="smart_streams_settings_section">SMART STREAMS</string>
++    <string name="smart_streams_settings_row">Preferensi</string>
++    <string name="smart_streams_settings_row_description">Urutan, filter, resolusi tertinggi, dan data seluler</string>
++    <string name="smart_streams_instant">Instan</string>
++    <string name="smart_streams_autoplay_mode">Putar otomatis cerdas</string>
++    <string name="smart_streams_autoplay_mode_description">Memilih stream terbaik untuk perangkat ini sesuai preferensi Smart Streams lalu memutarnya</string>
++    <string name="smart_streams_autoplay_searching">Mencari sumber terbaik… %1$d/%2$d</string>
++    <string name="smart_streams_autoplay_candidate">Terbaik sejauh ini: %1$s</string>
++    <string name="smart_streams_reason_language">Audio %1$s, bahasa pilihanmu</string>
++</resources>
+diff --git a/composeApp/src/commonMain/composeResources/values/strings_smart_streams.xml b/composeApp/src/commonMain/composeResources/values/strings_smart_streams.xml
+new file mode 100644
+index 0000000..b6b6aa1
+--- /dev/null
++++ b/composeApp/src/commonMain/composeResources/values/strings_smart_streams.xml
+@@ -0,0 +1,88 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string name="smart_streams_play_best">Play best for this device</string>
++    <string name="smart_streams_filters">Filters</string>
++    <string name="smart_streams_remove_filter">Remove %1$s filter</string>
++    <string name="smart_streams_clear_all">Clear all</string>
++    <string name="smart_streams_count">%1$d OF %2$d STREAMS · %3$s</string>
++    <string name="smart_streams_order_best">BEST MATCH FIRST</string>
++    <string name="smart_streams_order_quality">HIGHEST QUALITY FIRST</string>
++    <string name="smart_streams_order_smallest">SMALLEST FIRST</string>
++    <string name="smart_streams_order_largest">LARGEST FIRST</string>
++    <string name="smart_streams_order_addon">BY ADDON</string>
++    <string name="smart_streams_chip_under_size">Under %1$d GB</string>
++    <string name="smart_streams_instant_only">Instant only</string>
++    <string name="smart_streams_instant_only_description">Streams that start with no waiting</string>
++    <string name="smart_streams_showing_low_quality">Showing low quality</string>
++    <string name="smart_streams_hide_low_quality">Hide low quality</string>
++    <string name="smart_streams_hide_low_quality_description">CAM, telesync and screener copies</string>
++    <string name="smart_streams_sort_title">Sort streams</string>
++    <string name="smart_streams_remember">Use for every title</string>
++    <string name="smart_streams_remember_description">Remember this sort and your filters next time</string>
++    <string name="smart_streams_section_resolution">RESOLUTION</string>
++    <string name="smart_streams_section_hdr">HDR</string>
++    <string name="smart_streams_section_video">VIDEO</string>
++    <string name="smart_streams_section_audio">AUDIO</string>
++    <string name="smart_streams_section_source">SOURCE</string>
++    <string name="smart_streams_section_file_size">FILE SIZE</string>
++    <string name="smart_streams_size_any">Any</string>
++    <string name="smart_streams_size_under">&lt; %1$d GB</string>
++    <string name="smart_streams_reset">Reset</string>
++    <string name="smart_streams_show_count">Show %1$d streams</string>
++    <string name="smart_streams_best_title">Best for this device</string>
++    <string name="smart_streams_this_device">THIS DEVICE</string>
++    <string name="smart_streams_screen">Screen</string>
++    <string name="smart_streams_smooth_video">Smooth video</string>
++    <string name="smart_streams_memory">Memory</string>
++    <string name="smart_streams_connection">Connection</string>
++    <string name="smart_streams_why">WHY THIS STREAM</string>
++    <string name="smart_streams_highest_resolution">Highest resolution</string>
++    <string name="smart_streams_on_mobile_data">On mobile data</string>
++    <string name="smart_streams_play_this">Play this stream</string>
++    <string name="smart_streams_empty_title">No streams match your filters</string>
++    <string name="smart_streams_empty_message">Some addons don\'t say the quality in the stream name, so those can\'t be filtered.</string>
++    <string name="smart_streams_clear_filters">Clear filters</string>
++    <string name="smart_streams_best_match">Best match</string>
++    <string name="smart_streams_sort_best">Best match</string>
++    <string name="smart_streams_sort_best_description">Best for this device first · recommended</string>
++    <string name="smart_streams_sort_quality">Highest quality</string>
++    <string name="smart_streams_sort_quality_description">4K first, then HDR, then 1080p</string>
++    <string name="smart_streams_sort_smallest">Smallest file</string>
++    <string name="smart_streams_sort_smallest_description">Starts faster and uses less data</string>
++    <string name="smart_streams_sort_largest">Largest file</string>
++    <string name="smart_streams_sort_largest_description">Usually the highest bitrate</string>
++    <string name="smart_streams_sort_addon">Addon order</string>
++    <string name="smart_streams_sort_addon_description">Grouped by addon, like before</string>
++    <string name="smart_streams_limit_auto">Auto</string>
++    <string name="smart_streams_mobile_save_data">Save data</string>
++    <string name="smart_streams_mobile_best_quality">Best quality</string>
++    <string name="smart_streams_codec_other">Other</string>
++    <string name="smart_streams_audio_stereo">Stereo</string>
++    <string name="smart_streams_tv_connected">TV connected</string>
++    <string name="smart_streams_software">%1$s (software)</string>
++    <string name="smart_streams_up_to">up to %1$s</string>
++    <string name="smart_streams_wifi">Wi-Fi</string>
++    <string name="smart_streams_mobile_data">Mobile data</string>
++    <string name="smart_streams_reason_instant">Instant, starts with no waiting</string>
++    <string name="smart_streams_reason_not_instant">Needs to load first (no instant stream found)</string>
++    <string name="smart_streams_reason_sharpest_screen">%1$s, sharpest for this screen (about %2$d lines)</string>
++    <string name="smart_streams_reason_sharpest_limit">%1$s, the sharpest within your limit</string>
++    <string name="smart_streams_reason_codec_chip">%1$s, decoded by your chip</string>
++    <string name="smart_streams_reason_h264">H.264, played smoothly by the chip</string>
++    <string name="smart_streams_reason_hdr">%1$s, and your screen shows it</string>
++    <string name="smart_streams_reason_memory">%1$s memory, enough for 4K</string>
++    <string name="smart_streams_reason_kept_1080">Kept to 1080p to play smoothly on this device</string>
++    <string name="smart_streams_reason_size">%1$s, sensible for %2$s</string>
++    <string name="smart_streams_preferences_title">Smart Streams</string>
++    <string name="smart_streams_preferences_description">How streams are sorted, filtered and picked as the best for this device</string>
++    <string name="smart_streams_section_sort">SORT</string>
++    <string name="smart_streams_settings_section">SMART STREAMS</string>
++    <string name="smart_streams_settings_row">Preferences</string>
++    <string name="smart_streams_settings_row_description">Sort, filters, highest resolution and mobile data</string>
++    <string name="smart_streams_instant">Instant</string>
++    <string name="smart_streams_autoplay_mode">Smart auto-play</string>
++    <string name="smart_streams_autoplay_mode_description">Picks the best stream for this device using your Smart Streams preferences and plays it</string>
++    <string name="smart_streams_autoplay_searching">Finding the best source… %1$d/%2$d</string>
++    <string name="smart_streams_autoplay_candidate">Best so far: %1$s</string>
++    <string name="smart_streams_reason_language">Audio in %1$s, your preferred language</string>
++</resources>
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamLoadingScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamLoadingScreen.kt
+index 756b138..a9b0c53 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamLoadingScreen.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamLoadingScreen.kt
+@@ -9,6 +9,8 @@ import com.nuvio.app.features.streams.StreamsUiState
+ import nuvio.composeapp.generated.resources.Res
+ import nuvio.composeapp.generated.resources.debrid_resolving_stream
+ import nuvio.composeapp.generated.resources.player_loading_preparing
++import nuvio.composeapp.generated.resources.smart_streams_autoplay_candidate
++import nuvio.composeapp.generated.resources.smart_streams_autoplay_searching
+ import nuvio.composeapp.generated.resources.streams_finding_source
+ import nuvio.composeapp.generated.resources.streams_loading_subtitles
+ import nuvio.composeapp.generated.resources.youtube_resolving_stream
+@@ -31,6 +33,13 @@ internal fun StreamLoadingScreen(
+         preparingPlayback -> stringResource(Res.string.player_loading_preparing)
+         state.overlayMessage == stringResource(Res.string.streams_loading_subtitles) -> subtitleLoadingStatusMessage()
+         state.overlayMessage != null -> state.overlayMessage
++        state.autoPlayStream == null && state.smartAutoPlaySearch != null -> {
++            val search = state.smartAutoPlaySearch
++            val searching = stringResource(Res.string.smart_streams_autoplay_searching, search.loadedSources, search.totalSources)
++            search.candidateSummary?.takeIf { it.isNotBlank() }
++                ?.let { "$searching\n" + stringResource(Res.string.smart_streams_autoplay_candidate, it) }
++                ?: searching
++        }
+         state.autoPlayStream != null -> stringResource(Res.string.player_loading_preparing)
+         else -> stringResource(Res.string.streams_finding_source)
+     }
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.kt
+new file mode 100644
+index 0000000..3edc99d
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.kt
+@@ -0,0 +1,11 @@
++package com.nuvio.app.features.downloads
++
++/**
++ * Snapshot of the device's current network transport, used to gate starting a download
++ * when the user hasn't opted in to using mobile data for downloads.
++ */
++internal expect object DownloadNetworkGuard {
++    /** True when the current connection is Wi-Fi (or no metered/cellular transport is active). */
++    fun isOnWifi(): Boolean
++    val transportState: kotlinx.coroutines.flow.StateFlow<Boolean>
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
+index 4f58f00..187f561 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/home/components/HomeHeroSection.kt
+@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.Dp
+ import androidx.compose.ui.unit.dp
+ import coil3.compose.AsyncImage
+ import com.nuvio.app.core.ui.focusedAlignment
+-import com.nuvio.app.core.ui.rememberBackdropFocusState
+ import com.nuvio.app.core.ui.revealAlpha
+ import com.nuvio.app.core.ui.heroStretchHeight
+ import com.nuvio.app.core.ui.LocalVerticalBarPadding
+@@ -208,8 +207,7 @@ fun HomeHeroSection(
+                 state = pagerState,
+                 userScrollEnabled = false,
+                 modifier = Modifier
+-                    .fillMaxSize()
+-                    .graphicsLayer { alpha = 0.01f },
++                    .fillMaxSize(),
+             ) {
+                 Box(modifier = Modifier.fillMaxSize())
+             }
+@@ -226,7 +224,6 @@ fun HomeHeroSection(
+                     visiblePages.forEach { layer ->
+                         key(layer.itemIndex) {
+                             val layerImageUrl = items[layer.itemIndex].banner ?: items[layer.itemIndex].poster
+-                            val backdropFocus = rememberBackdropFocusState(layerImageUrl)
+                             AsyncImage(
+                                 model = layerImageUrl,
+                                 contentDescription = items[layer.itemIndex].name,
+@@ -235,18 +232,14 @@ fun HomeHeroSection(
+                                     .graphicsLayer {
+                                         val offset = scrollOffsetPx
+                                         val scrollScale = heroBackgroundScrollScale(offset)
+-                                        alpha = layer.visibility * backdropFocus.revealAlpha
++                                        alpha = layer.visibility
+                                         translationX = -layer.offset * heroWidthPx * HERO_BACKGROUND_PARALLAX
+                                         translationY = heroBackgroundScrollTranslationY(offset)
+                                         scaleX = HERO_BACKGROUND_SCALE * scrollScale
+                                         scaleY = HERO_BACKGROUND_SCALE * scrollScale
+                                     },
+-                                alignment = backdropFocus.focusedAlignment(
+-                                    if (layout.isTablet) Alignment.TopCenter else Alignment.Center,
+-                                ),
++                                alignment = if (layout.isTablet) Alignment.TopCenter else Alignment.Center,
+                                 contentScale = ContentScale.Crop,
+-                                onSuccess = { state -> backdropFocus.onImageLoaded(state.result.image) },
+-                                onError = { backdropFocus.onImageFailed() },
+                             )
+                         }
+                     }
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.kt
+new file mode 100644
+index 0000000..b6b63f4
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.kt
+@@ -0,0 +1,9 @@
++package com.nuvio.app.features.player
++
++internal expect object PlaybackMemoryInfo {
++    fun deviceMemoryMb(): Int
++    fun javaHeapBufferLimitMb(): Int
++}
++
++internal fun PlaybackMemoryInfo.safeBufferLimitMb(): Int =
++    (deviceMemoryMb() / 5).coerceIn(256, 2000)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerNextEpisodeAutoPlay.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerNextEpisodeAutoPlay.kt
+index ca1cc25..a39182b 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerNextEpisodeAutoPlay.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerNextEpisodeAutoPlay.kt
+@@ -1,5 +1,8 @@
+ package com.nuvio.app.features.player
+ 
++import com.nuvio.app.features.streams.SmartStreamRanking
++import com.nuvio.app.features.streams.SmartStreamSettingsRepository
++import com.nuvio.app.features.streams.currentSmartDeviceProfile
+ import com.nuvio.app.core.ui.NuvioToastController
+ import com.nuvio.app.features.addons.AddonRepository
+ import com.nuvio.app.features.addons.enabledAddons
+@@ -167,7 +170,8 @@ internal fun CoroutineScope.launchPlayerNextEpisodeAutoPlay(
+             episode = nextVideo.episode,
+         )
+ 
+-        if (effectiveMode == StreamAutoPlayMode.MANUAL) {
++        val smartSettings = SmartStreamSettingsRepository.state.value
++        if (effectiveMode == StreamAutoPlayMode.MANUAL && !smartSettings.autoPlay) {
+             onSearchingChanged(false)
+             onNextEpisodeCardVisibleChanged(false)
+             onManualSelectionRequired(nextVideo)
+@@ -204,7 +208,16 @@ internal fun CoroutineScope.launchPlayerNextEpisodeAutoPlay(
+         }
+ 
+         fun trySelectStream(streams: List<StreamItem>): StreamItem? =
+-            StreamAutoPlaySelector.selectAutoPlayStream(
++            if (smartSettings.autoPlay) {
++                SmartStreamRanking.rankForAutoPlay(
++                    streams = streams,
++                    settings = smartSettings,
++                    device = currentSmartDeviceProfile(),
++                    debridEnabled = debridSettings.canResolvePlayableLinks,
++                    isEpisode = true,
++                    preferredBingeGroup = currentStreamBingeGroup,
++                ).ranked.firstOrNull()?.stream
++            } else StreamAutoPlaySelector.selectAutoPlayStream(
+                 streams = streams,
+                 mode = effectiveMode,
+                 regexPattern = effectiveRegex,
+@@ -344,6 +357,7 @@ internal fun CoroutineScope.launchPlayerNextEpisodeAutoPlay(
+                         triedKeys = triedKeys,
+                         failedAddonId = failed.addonId,
+                         failedInfoHash = failed.p2pInfoHash,
++                        isEpisode = true,
+                     )
+                 },
+             )
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt
+index 7b19a34..b634563 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt
+@@ -1,5 +1,8 @@
+ package com.nuvio.app.features.player
+ 
++import com.nuvio.app.features.streams.SmartStreamRanking
++import com.nuvio.app.features.streams.SmartStreamSettingsRepository
++import com.nuvio.app.features.streams.currentSmartDeviceProfile
+ import co.touchlab.kermit.Logger
+ import com.nuvio.app.features.addons.AddonRepository
+ import com.nuvio.app.features.addons.enabledAddons
+@@ -104,6 +107,7 @@ internal fun PlayerScreenRuntime.tryFallbackToNextSourceAfterError(message: Stri
+                     triedKeys = sourceFallbackTriedKeys,
+                     failedAddonId = failedAddonId,
+                     failedInfoHash = failedInfoHash,
++                    isEpisode = season != null,
+                 )
+                 if (next == null) {
+                     val searchDone = state.emptyStateReason != null || (!state.isAnyLoading && state.groups.isNotEmpty())
+@@ -154,6 +158,7 @@ internal fun nextSourceFallbackCandidate(
+     installedAddonNames: Set<String> = AddonRepository.uiState.value.addons.enabledAddons().map { it.displayTitle }.toSet(),
+     debridEnabled: Boolean = DebridSettingsRepository.snapshot().canResolvePlayableLinks,
+     activeResolverProviderId: String? = DebridSettingsRepository.snapshot().activeResolverProviderId,
++    isEpisode: Boolean = false,
+ ): StreamItem? {
+     val untried = streams.filterNot { stream ->
+         val key = stream.playerSourceIdentityKey()
+@@ -161,6 +166,16 @@ internal fun nextSourceFallbackCandidate(
+             (failedInfoHash != null && stream.addonId == failedAddonId &&
+                 stream.p2pInfoHash.equals(failedInfoHash, ignoreCase = true))
+     }
++    val smartSettings = SmartStreamSettingsRepository.state.value
++    if (smartSettings.autoPlay) {
++        return SmartStreamRanking.rankForAutoPlay(
++            streams = untried,
++            settings = smartSettings,
++            device = currentSmartDeviceProfile(),
++            debridEnabled = debridEnabled,
++            isEpisode = isEpisode,
++        ).ranked.firstOrNull()?.stream
++    }
+     return StreamAutoPlaySelector.evaluateAutoPlayStream(
+         streams = untried,
+         mode = settings.streamAutoPlayMode,
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSettingsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSettingsRepository.kt
+index b854fd6..7f4e2cc 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSettingsRepository.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerSettingsRepository.kt
+@@ -1,5 +1,6 @@
+ package com.nuvio.app.features.player
+ 
++import com.nuvio.app.features.streams.SmartStreamSettingsRepository
+ import com.nuvio.app.core.build.AppFeaturePolicy
+ import com.nuvio.app.features.player.skip.AutoSkipSegmentType
+ import com.nuvio.app.features.player.skip.NextEpisodeThresholdMode
+@@ -140,7 +141,8 @@ const val SOURCE_STARTUP_TIMEOUT_SECONDS_STEP = 5
+  */
+ val PlayerSettingsUiState.streamAutoPlayFallbackActive: Boolean
+     get() = streamAutoPlayFallbackOnFailure &&
+-        streamAutoPlayMode != StreamAutoPlayMode.MANUAL &&
++        (streamAutoPlayMode != StreamAutoPlayMode.MANUAL ||
++            SmartStreamSettingsRepository.state.value.autoPlay) &&
+         !externalPlayerEnabled
+ 
+ object PlayerSettingsRepository {
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamDialogs.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamDialogs.kt
+index 1bbf3bc..55f023a 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamDialogs.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamDialogs.kt
+@@ -44,6 +44,8 @@ internal fun StreamAutoPlayModeDialog(
+     selectedMode: StreamAutoPlayMode,
+     onModeSelected: (StreamAutoPlayMode) -> Unit,
+     onDismiss: () -> Unit,
++    smartSelected: Boolean = false,
++    onSmartSelected: (() -> Unit)? = null,
+ ) {
+     val options = listOf(
+         Triple(
+@@ -72,7 +74,7 @@ internal fun StreamAutoPlayModeDialog(
+             verticalArrangement = Arrangement.spacedBy(8.dp),
+         ) {
+             options.forEach { (mode, titleRes, descriptionRes) ->
+-                val isSelected = mode == selectedMode
++                val isSelected = !smartSelected && mode == selectedMode
+                 DialogOption(
+                     text = stringResource(titleRes),
+                     description = stringResource(descriptionRes),
+@@ -80,6 +82,14 @@ internal fun StreamAutoPlayModeDialog(
+                     onClick = { onModeSelected(mode) },
+                 )
+             }
++            if (onSmartSelected != null) {
++                DialogOption(
++                    text = stringResource(Res.string.smart_streams_autoplay_mode),
++                    description = stringResource(Res.string.smart_streams_autoplay_mode_description),
++                    selected = smartSelected,
++                    onClick = onSmartSelected,
++                )
++            }
+         }
+ 
+         DialogButtons {
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamSettings.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamSettings.kt
+index 249c5fe..457647c 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamSettings.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/PlaybackStreamSettings.kt
+@@ -2,6 +2,8 @@ package com.nuvio.app.features.settings
+ 
+ import com.nuvio.app.core.ui.Slider
+ import com.nuvio.app.core.build.AppFeaturePolicy
++import com.nuvio.app.features.streams.SmartStreamPreferencesSheet
++import com.nuvio.app.features.streams.SmartStreamSettingsRepository
+ import androidx.compose.foundation.layout.Arrangement
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Row
+@@ -53,6 +55,9 @@ internal fun PlaybackStreamSettings(
+ ) {
+     var showReuseCacheDurationDialog by remember { mutableStateOf(false) }
+     var showAutoPlayModeDialog by remember { mutableStateOf(false) }
++    var showSmartStreamPreferences by remember { mutableStateOf(false) }
++    val smartStreamSettings by SmartStreamSettingsRepository.state.collectAsStateWithLifecycle()
++    val smartAutoPlay = smartStreamSettings.autoPlay
+     var showAutoPlaySourceDialog by remember { mutableStateOf(false) }
+     var showAutoPlayAddonSelectionDialog by remember { mutableStateOf(false) }
+     var showAutoPlayPluginSelectionDialog by remember { mutableStateOf(false) }
+@@ -91,6 +96,20 @@ internal fun PlaybackStreamSettings(
+             }
+         }
+ 
++        SettingsSection(
++            title = stringResource(Res.string.smart_streams_settings_section),
++            isTablet = isTablet,
++        ) {
++            SettingsGroup(isTablet = isTablet) {
++                SettingsNavigationRow(
++                    title = stringResource(Res.string.smart_streams_settings_row),
++                    description = stringResource(Res.string.smart_streams_settings_row_description),
++                    isTablet = isTablet,
++                    onClick = { showSmartStreamPreferences = true },
++                )
++            }
++        }
++
+         SettingsSection(
+             title = stringResource(Res.string.settings_playback_section_stream_auto_play),
+             isTablet = isTablet,
+@@ -98,11 +117,15 @@ internal fun PlaybackStreamSettings(
+             SettingsGroup(isTablet = isTablet) {
+                 SettingsNavigationRow(
+                     title = stringResource(Res.string.settings_playback_stream_selection_mode),
+-                    description = stringResource(settings.streamAutoPlayMode.labelRes),
++                    description = if (smartAutoPlay) {
++                        stringResource(Res.string.smart_streams_autoplay_mode)
++                    } else {
++                        stringResource(settings.streamAutoPlayMode.labelRes)
++                    },
+                     isTablet = isTablet,
+                     onClick = { showAutoPlayModeDialog = true },
+                 )
+-                if (settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {
++                if (!smartAutoPlay && settings.streamAutoPlayMode == StreamAutoPlayMode.REGEX_MATCH) {
+                     SettingsGroupDivider(isTablet = isTablet)
+                     val notSetLabel = stringResource(Res.string.settings_playback_not_set)
+                     SettingsNavigationRow(
+@@ -112,7 +135,7 @@ internal fun PlaybackStreamSettings(
+                         onClick = { showAutoPlayRegexDialog = true },
+                     )
+                 }
+-                if (settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
++                if (smartAutoPlay || settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL) {
+                     // Excludes the engine switch on error (Android only): both react to the same failure.
+                     // Only the switch that is off is locked, so both stay reachable if both ended up on.
+                     val blockedByEngineSwitch = !isIos && settings.autoSwitchPlaybackEngineOnError &&
+@@ -268,13 +291,23 @@ internal fun PlaybackStreamSettings(
+         )
+     }
+ 
++    if (showSmartStreamPreferences) {
++        SmartStreamPreferencesSheet(onDismiss = { showSmartStreamPreferences = false })
++    }
++
+     if (showAutoPlayModeDialog) {
+         StreamAutoPlayModeDialog(
+             selectedMode = settings.streamAutoPlayMode,
++            smartSelected = smartAutoPlay,
+             onModeSelected = {
++                SmartStreamSettingsRepository.update { current -> current.copy(autoPlay = false) }
+                 PlayerSettingsRepository.setStreamAutoPlayMode(it)
+                 showAutoPlayModeDialog = false
+             },
++            onSmartSelected = {
++                SmartStreamSettingsRepository.update { current -> current.copy(autoPlay = true) }
++                showAutoPlayModeDialog = false
++            },
+             onDismiss = { showAutoPlayModeDialog = false },
+         )
+     }
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt
+new file mode 100644
+index 0000000..e57295f
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamControls.kt
+@@ -0,0 +1,1032 @@
++package com.nuvio.app.features.streams
++
++import androidx.compose.foundation.ExperimentalFoundationApi
++import androidx.compose.foundation.background
++import androidx.compose.foundation.border
++import androidx.compose.foundation.clickable
++import androidx.compose.foundation.combinedClickable
++import androidx.compose.foundation.horizontalScroll
++import androidx.compose.foundation.layout.Arrangement
++import androidx.compose.foundation.layout.Box
++import androidx.compose.foundation.layout.Column
++import androidx.compose.foundation.layout.ColumnScope
++import androidx.compose.foundation.layout.ExperimentalLayoutApi
++import androidx.compose.foundation.layout.FlowRow
++import androidx.compose.foundation.layout.Row
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.fillMaxWidth
++import androidx.compose.foundation.layout.height
++import androidx.compose.foundation.layout.heightIn
++import androidx.compose.foundation.layout.padding
++import androidx.compose.foundation.layout.size
++import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.lazy.LazyListScope
++import androidx.compose.foundation.lazy.itemsIndexed
++import androidx.compose.foundation.rememberScrollState
++import androidx.compose.foundation.shape.CircleShape
++import androidx.compose.foundation.shape.RoundedCornerShape
++import androidx.compose.foundation.verticalScroll
++import androidx.compose.material.icons.Icons
++import androidx.compose.material.icons.rounded.Check
++import androidx.compose.material.icons.rounded.Close
++import androidx.compose.material.icons.rounded.KeyboardArrowDown
++import androidx.compose.material.icons.rounded.PlayArrow
++import androidx.compose.material.icons.rounded.SwapVert
++import androidx.compose.material.icons.rounded.Tune
++import androidx.compose.material3.ExperimentalMaterial3Api
++import androidx.compose.material3.Icon
++import androidx.compose.material3.MaterialTheme
++import androidx.compose.material3.Switch
++import androidx.compose.material3.SwitchDefaults
++import androidx.compose.material3.Text
++import androidx.compose.material3.rememberModalBottomSheetState
++import androidx.compose.runtime.Composable
++import androidx.compose.runtime.DisposableEffect
++import androidx.compose.runtime.getValue
++import androidx.compose.runtime.mutableStateOf
++import androidx.compose.runtime.produceState
++import androidx.compose.runtime.remember
++import androidx.compose.runtime.rememberCoroutineScope
++import androidx.compose.runtime.setValue
++import androidx.compose.ui.Alignment
++import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
++import androidx.compose.ui.graphics.Color
++import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.style.TextOverflow
++import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
++import androidx.lifecycle.compose.collectAsStateWithLifecycle
++import com.nuvio.app.core.build.AppFeaturePolicy
++import com.nuvio.app.core.ui.NuvioModalBottomSheet
++import com.nuvio.app.core.ui.NuvioToastController
++import com.nuvio.app.core.ui.dismissNuvioBottomSheet
++import com.nuvio.app.core.ui.backdropControlColor
++import com.nuvio.app.core.ui.nuvio
++import kotlinx.coroutines.launch
++import nuvio.composeapp.generated.resources.*
++import org.jetbrains.compose.resources.stringResource
++import kotlinx.coroutines.withContext
++
++internal data class SmartStreamsState(
++    val result: SmartStreamsResult?,
++    val settings: SmartStreamSettings,
++    val device: SmartDeviceProfile,
++)
++
++@Composable
++internal fun rememberSmartStreams(
++    listState: StreamsUiState,
++    allState: StreamsUiState,
++    debridEnabled: Boolean,
++    isEpisode: Boolean,
++): SmartStreamsState {
++    val settings by SmartStreamSettingsRepository.state.collectAsStateWithLifecycle()
++    val device = remember { currentSmartDeviceProfile() }
++    DisposableEffect(Unit) {
++        onDispose { SmartStreamSettingsRepository.onStreamsScreenClosed() }
++    }
++    val result by produceState<SmartStreamsResult?>(
++        initialValue = null,
++        listState, allState, settings, device, debridEnabled, isEpisode,
++    ) {
++        value = withContext(SmartStreamRanking.dispatcher) {
++            SmartStreamRanking.compute(
++                listState = listState,
++                allState = allState,
++                settings = settings,
++                device = device,
++                debridEnabled = debridEnabled,
++                isEpisode = isEpisode,
++            )
++        }
++    }
++    return SmartStreamsState(result, settings, device)
++}
++
++private fun updateFilters(transform: (SmartStreamFilters) -> SmartStreamFilters) {
++    SmartStreamSettingsRepository.update { it.copy(filters = transform(it.filters)) }
++}
++
++private fun <T> Set<T>.toggle(value: T): Set<T> = if (value in this) this - value else this + value
++
++@OptIn(ExperimentalFoundationApi::class)
++@Composable
++internal fun SmartStreamControls(
++    state: SmartStreamsState,
++    onPlay: (StreamItem) -> Unit,
++    modifier: Modifier = Modifier,
++) {
++    val colors = MaterialTheme.nuvio.colors
++    var showSort by remember { mutableStateOf(false) }
++    var showFilters by remember { mutableStateOf(false) }
++    var showBest by remember { mutableStateOf(false) }
++    val result = state.result
++    val best = result?.best
++    val filters = state.settings.filters
++
++    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
++        if (best != null) {
++            Row(
++                modifier = Modifier
++                    .fillMaxWidth()
++                    .heightIn(min = 60.dp)
++                    .clip(RoundedCornerShape(16.dp))
++                    .background(colors.accent)
++                    .combinedClickable(
++                        onClick = { onPlay(best.stream) },
++                        onLongClick = { showBest = true },
++                    )
++                    .padding(horizontal = 14.dp, vertical = 10.dp),
++                verticalAlignment = Alignment.CenterVertically,
++                horizontalArrangement = Arrangement.spacedBy(12.dp),
++            ) {
++                Box(
++                    modifier = Modifier
++                        .size(36.dp)
++                        .clip(CircleShape)
++                        .background(colors.onAccent.copy(alpha = 0.14f)),
++                    contentAlignment = Alignment.Center,
++                ) {
++                    Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = colors.onAccent)
++                }
++                Column(modifier = Modifier.weight(1f)) {
++                    Text(
++                        text = stringResource(Res.string.smart_streams_play_best),
++                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
++                        color = colors.onAccent,
++                        maxLines = 1,
++                    )
++                    val summary = best.info.summary(stringResource(Res.string.smart_streams_instant)).ifBlank { best.stream.addonName }
++                    Text(
++                        text = summary,
++                        style = MaterialTheme.typography.labelMedium,
++                        color = colors.onAccent.copy(alpha = 0.75f),
++                        maxLines = 1,
++                        overflow = TextOverflow.Ellipsis,
++                    )
++                }
++            }
++        }
++
++        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
++            SmartBarButton(
++                icon = { Icon(Icons.Rounded.SwapVert, contentDescription = null, modifier = Modifier.size(18.dp)) },
++                label = smartSortTitle(state.settings.sortMode),
++                highlighted = false,
++                trailing = {
++                    Icon(
++                        Icons.Rounded.KeyboardArrowDown,
++                        contentDescription = null,
++                        tint = colors.textMuted,
++                        modifier = Modifier.size(18.dp),
++                    )
++                },
++                onClick = { showSort = true },
++                modifier = Modifier.weight(1f),
++            )
++            SmartBarButton(
++                icon = { Icon(Icons.Rounded.Tune, contentDescription = null, modifier = Modifier.size(18.dp)) },
++                label = stringResource(Res.string.smart_streams_filters),
++                highlighted = filters.activeCount > 0,
++                trailing = if (filters.activeCount > 0) {
++                    {
++                        Box(
++                            modifier = Modifier
++                                .heightIn(min = 20.dp)
++                                .clip(CircleShape)
++                                .background(colors.accent)
++                                .padding(horizontal = 7.dp, vertical = 2.dp),
++                            contentAlignment = Alignment.Center,
++                        ) {
++                            Text(
++                                text = filters.activeCount.toString(),
++                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
++                                color = colors.onAccent,
++                            )
++                        }
++                    }
++                } else {
++                    null
++                },
++                onClick = { showFilters = true },
++                modifier = Modifier.weight(1f),
++            )
++        }
++
++        val chips = activeFilterChips(filters, rememberSmartLabels())
++        if (chips.isNotEmpty()) {
++            Row(
++                modifier = Modifier.fillMaxWidth(),
++                verticalAlignment = Alignment.CenterVertically,
++            ) {
++                Row(
++                    modifier = Modifier
++                        .weight(1f)
++                        .horizontalScroll(rememberScrollState()),
++                    horizontalArrangement = Arrangement.spacedBy(6.dp),
++                ) {
++                    chips.forEach { chip ->
++                        Row(
++                            modifier = Modifier
++                                .height(32.dp)
++                                .clip(CircleShape)
++                                .background(backdropControlColor(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)))
++                                .border(1.dp, colors.accent.copy(alpha = 0.55f), CircleShape)
++                                .clickable(onClick = chip.remove)
++                                .padding(start = 12.dp, end = 8.dp),
++                            verticalAlignment = Alignment.CenterVertically,
++                            horizontalArrangement = Arrangement.spacedBy(6.dp),
++                        ) {
++                            Text(
++                                text = chip.label,
++                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
++                                color = colors.textPrimary,
++                                maxLines = 1,
++                            )
++                            Icon(
++                                Icons.Rounded.Close,
++                                contentDescription = stringResource(Res.string.smart_streams_remove_filter, chip.label),
++                                tint = colors.textPrimary,
++                                modifier = Modifier.size(14.dp),
++                            )
++                        }
++                    }
++                }
++                Text(
++                    text = stringResource(Res.string.smart_streams_clear_all),
++                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
++                    color = colors.textSecondary,
++                    modifier = Modifier
++                        .clip(RoundedCornerShape(8.dp))
++                        .clickable { updateFilters { SmartStreamFilters() } }
++                        .padding(horizontal = 8.dp, vertical = 8.dp),
++                )
++            }
++        }
++
++        if (result != null && result.totalCount > 0) {
++            val order = when (state.settings.sortMode) {
++                SmartSortMode.BEST_MATCH -> stringResource(Res.string.smart_streams_order_best)
++                SmartSortMode.HIGHEST_QUALITY -> stringResource(Res.string.smart_streams_order_quality)
++                SmartSortMode.SMALLEST_FILE -> stringResource(Res.string.smart_streams_order_smallest)
++                SmartSortMode.LARGEST_FILE -> stringResource(Res.string.smart_streams_order_largest)
++                SmartSortMode.ADDON_ORDER -> stringResource(Res.string.smart_streams_order_addon)
++            }
++            Text(
++                text = stringResource(Res.string.smart_streams_count, result.shownCount, result.totalCount, order),
++                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp),
++                color = colors.textMuted,
++                modifier = Modifier.padding(top = 2.dp),
++            )
++        }
++    }
++
++    if (showSort) SmartSortSheet(state = state, onDismiss = { showSort = false })
++    if (showFilters) SmartFiltersSheet(state = state, onDismiss = { showFilters = false })
++    if (showBest && best != null) {
++        SmartBestSheet(
++            state = state,
++            best = best,
++            onPlay = { onPlay(best.stream) },
++            onDismiss = { showBest = false },
++        )
++    }
++}
++
++@Composable
++private fun SmartBarButton(
++    icon: @Composable () -> Unit,
++    label: String,
++    highlighted: Boolean,
++    trailing: (@Composable () -> Unit)?,
++    onClick: () -> Unit,
++    modifier: Modifier = Modifier,
++) {
++    val colors = MaterialTheme.nuvio.colors
++    val shape = RoundedCornerShape(16.dp)
++    Row(
++        modifier = modifier
++            .height(44.dp)
++            .clip(shape)
++            .background(backdropControlColor(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)))
++            .then(if (highlighted) Modifier.border(1.dp, colors.accent.copy(alpha = 0.55f), shape) else Modifier)
++            .clickable(onClick = onClick)
++            .padding(horizontal = 12.dp),
++        verticalAlignment = Alignment.CenterVertically,
++        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
++    ) {
++        Box(contentAlignment = Alignment.Center) {
++            androidx.compose.runtime.CompositionLocalProvider(
++                androidx.compose.material3.LocalContentColor provides colors.textPrimary,
++            ) { icon() }
++        }
++        Text(
++            text = label,
++            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
++            color = colors.textPrimary,
++            maxLines = 1,
++            overflow = TextOverflow.Ellipsis,
++        )
++        trailing?.invoke()
++    }
++}
++
++private data class SmartFilterChip(val label: String, val remove: () -> Unit)
++
++private fun activeFilterChips(filters: SmartStreamFilters, labels: SmartLabels): List<SmartFilterChip> = buildList {
++    SmartResolution.entries.reversed().filter { it in filters.resolutions }.forEach { value ->
++        add(SmartFilterChip(value.label) { updateFilters { it.copy(resolutions = it.resolutions - value) } })
++    }
++    SmartHdrFilter.entries.filter { it in filters.hdr }.forEach { value ->
++        add(SmartFilterChip(value.label) { updateFilters { it.copy(hdr = it.hdr - value) } })
++    }
++    SmartCodec.entries.filter { it in filters.codecs }.forEach { value ->
++        add(SmartFilterChip(labels.codec(value)) { updateFilters { it.copy(codecs = it.codecs - value) } })
++    }
++    SmartAudio.entries.filter { it in filters.audio }.forEach { value ->
++        add(SmartFilterChip(labels.audio(value)) { updateFilters { it.copy(audio = it.audio - value) } })
++    }
++    SmartSource.entries.reversed().filter { it in filters.sources }.forEach { value ->
++        add(SmartFilterChip(value.label) { updateFilters { it.copy(sources = it.sources - value) } })
++    }
++    if (filters.imax != ImaxMode.OFF) {
++        add(SmartFilterChip(filters.imax.label) { updateFilters { it.copy(imax = ImaxMode.OFF) } })
++    }
++    filters.maxSizeGb?.let { gb ->
++        add(SmartFilterChip(labels.underSize(gb)) { updateFilters { it.copy(maxSizeGb = null) } })
++    }
++    if (filters.instantOnly) add(SmartFilterChip(labels.instantOnly) { updateFilters { it.copy(instantOnly = false) } })
++    if (!filters.hideLowQuality) {
++        add(SmartFilterChip(labels.showingLowQuality) { updateFilters { it.copy(hideLowQuality = true) } })
++    }
++}
++
++@OptIn(ExperimentalMaterial3Api::class)
++@Composable
++private fun SmartSheet(
++    onDismiss: () -> Unit,
++    content: @Composable ColumnScope.(close: () -> Unit) -> Unit,
++) {
++    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
++    val scope = rememberCoroutineScope()
++    val close: () -> Unit = {
++        scope.launch { dismissNuvioBottomSheet(sheetState = sheetState, onDismiss = onDismiss) }
++    }
++    NuvioModalBottomSheet(onDismissRequest = close, sheetState = sheetState) {
++        Column(
++            modifier = Modifier
++                .fillMaxWidth()
++                .verticalScroll(rememberScrollState())
++                .padding(horizontal = 16.dp)
++                .padding(bottom = 24.dp),
++            verticalArrangement = Arrangement.spacedBy(16.dp),
++        ) {
++            content(close)
++        }
++    }
++}
++
++@Composable
++private fun SheetTitle(text: String, subtitle: String? = null) {
++    Column(modifier = Modifier.padding(horizontal = 4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
++        Text(
++            text = text,
++            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
++            color = MaterialTheme.nuvio.colors.textPrimary,
++        )
++        if (subtitle != null) {
++            Text(
++                text = subtitle,
++                style = MaterialTheme.typography.bodySmall,
++                color = MaterialTheme.nuvio.colors.textMuted,
++            )
++        }
++    }
++}
++
++@Composable
++private fun SectionLabel(text: String) {
++    Text(
++        text = text,
++        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp),
++        color = MaterialTheme.nuvio.colors.textMuted,
++        modifier = Modifier.padding(horizontal = 4.dp),
++    )
++}
++
++@Composable
++private fun GroupCard(content: @Composable ColumnScope.() -> Unit) {
++    Column(
++        modifier = Modifier
++            .fillMaxWidth()
++            .clip(RoundedCornerShape(14.dp))
++            .background(MaterialTheme.nuvio.colors.surfaceCard),
++        content = content,
++    )
++}
++
++@Composable
++private fun GroupDivider() {
++    Box(
++        modifier = Modifier
++            .fillMaxWidth()
++            .padding(start = 16.dp)
++            .height(1.dp)
++            .background(MaterialTheme.nuvio.colors.borderSubtle),
++    )
++}
++
++@Composable
++private fun SwitchRow(title: String, subtitle: String?, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
++    val colors = MaterialTheme.nuvio.colors
++    Row(
++        modifier = Modifier
++            .fillMaxWidth()
++            .heightIn(min = 56.dp)
++            .clickable { onCheckedChange(!checked) }
++            .padding(horizontal = 16.dp, vertical = 8.dp),
++        verticalAlignment = Alignment.CenterVertically,
++        horizontalArrangement = Arrangement.spacedBy(12.dp),
++    ) {
++        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
++            Text(
++                text = title,
++                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
++                color = colors.textPrimary,
++            )
++            if (subtitle != null) {
++                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = colors.textMuted)
++            }
++        }
++        Switch(
++            checked = checked,
++            onCheckedChange = onCheckedChange,
++            colors = SwitchDefaults.colors(
++                checkedThumbColor = colors.onAccent,
++                checkedTrackColor = colors.accent,
++                uncheckedThumbColor = colors.textMuted,
++                uncheckedTrackColor = colors.borderDefault,
++            ),
++        )
++    }
++}
++
++@Composable
++private fun <T> Segmented(
++    options: List<T>,
++    selected: T,
++    label: (T) -> String,
++    onSelect: (T) -> Unit,
++    modifier: Modifier = Modifier,
++) {
++    val colors = MaterialTheme.nuvio.colors
++    Row(
++        modifier = modifier
++            .clip(RoundedCornerShape(11.dp))
++            .background(colors.surfaceCard)
++            .border(1.dp, colors.borderDefault, RoundedCornerShape(11.dp))
++            .padding(2.dp),
++        horizontalArrangement = Arrangement.spacedBy(2.dp),
++    ) {
++        options.forEach { option ->
++            val isSelected = option == selected
++            Box(
++                modifier = Modifier
++                    .weight(1f)
++                    .height(34.dp)
++                    .clip(RoundedCornerShape(9.dp))
++                    .background(if (isSelected) colors.accent else Color.Transparent)
++                    .clickable { onSelect(option) },
++                contentAlignment = Alignment.Center,
++            ) {
++                Text(
++                    text = label(option),
++                    style = MaterialTheme.typography.labelMedium.copy(
++                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
++                    ),
++                    color = if (isSelected) colors.onAccent else colors.textSecondary,
++                    maxLines = 1,
++                )
++            }
++        }
++    }
++}
++
++@OptIn(ExperimentalLayoutApi::class)
++@Composable
++private fun <T> ChipSection(
++    title: String,
++    options: List<T>,
++    selected: Set<T>,
++    label: (T) -> String,
++    onToggle: (T) -> Unit,
++) {
++    val colors = MaterialTheme.nuvio.colors
++    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++        SectionLabel(title)
++        FlowRow(
++            horizontalArrangement = Arrangement.spacedBy(6.dp),
++            verticalArrangement = Arrangement.spacedBy(6.dp),
++        ) {
++            options.forEach { option ->
++                val isSelected = option in selected
++                Box(
++                    modifier = Modifier
++                        .height(36.dp)
++                        .clip(CircleShape)
++                        .background(if (isSelected) colors.accent.copy(alpha = 0.14f) else colors.surfaceCard)
++                        .border(
++                            1.dp,
++                            if (isSelected) colors.accent.copy(alpha = 0.6f) else colors.borderDefault,
++                            CircleShape,
++                        )
++                        .clickable { onToggle(option) }
++                        .padding(horizontal = 14.dp),
++                    contentAlignment = Alignment.Center,
++                ) {
++                    Text(
++                        text = label(option),
++                        style = MaterialTheme.typography.labelLarge.copy(
++                            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
++                        ),
++                        color = if (isSelected) colors.textPrimary else colors.textSecondary,
++                    )
++                }
++            }
++        }
++    }
++}
++
++@Composable
++private fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, icon: Boolean = false) {
++    val colors = MaterialTheme.nuvio.colors
++    Row(
++        modifier = modifier
++            .height(52.dp)
++            .clip(RoundedCornerShape(14.dp))
++            .background(colors.accent)
++            .clickable(onClick = onClick),
++        verticalAlignment = Alignment.CenterVertically,
++        horizontalArrangement = Arrangement.Center,
++    ) {
++        if (icon) {
++            Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = colors.onAccent)
++            Spacer(modifier = Modifier.width(6.dp))
++        }
++        Text(
++            text = text,
++            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
++            color = colors.onAccent,
++        )
++    }
++}
++
++@Composable
++private fun SecondaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
++    val colors = MaterialTheme.nuvio.colors
++    Box(
++        modifier = modifier
++            .height(52.dp)
++            .clip(RoundedCornerShape(14.dp))
++            .border(1.dp, colors.borderDefault, RoundedCornerShape(14.dp))
++            .clickable(onClick = onClick),
++        contentAlignment = Alignment.Center,
++    ) {
++        Text(
++            text = text,
++            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
++            color = colors.textPrimary,
++        )
++    }
++}
++
++@Composable
++private fun SmartSortSheet(state: SmartStreamsState, onDismiss: () -> Unit) {
++    val colors = MaterialTheme.nuvio.colors
++    SmartSheet(onDismiss = onDismiss) { close ->
++        SheetTitle(stringResource(Res.string.smart_streams_sort_title))
++        GroupCard {
++            SmartSortMode.entries.forEachIndexed { index, mode ->
++                if (index > 0) GroupDivider()
++                val isSelected = mode == state.settings.sortMode
++                Row(
++                    modifier = Modifier
++                        .fillMaxWidth()
++                        .heightIn(min = 62.dp)
++                        .background(if (isSelected) colors.accent.copy(alpha = 0.12f) else Color.Transparent)
++                        .clickable {
++                            SmartStreamSettingsRepository.update { it.copy(sortMode = mode) }
++                            close()
++                        }
++                        .padding(horizontal = 16.dp, vertical = 10.dp),
++                    verticalAlignment = Alignment.CenterVertically,
++                    horizontalArrangement = Arrangement.spacedBy(12.dp),
++                ) {
++                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
++                        Text(
++                            text = smartSortTitle(mode),
++                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
++                            color = colors.textPrimary,
++                        )
++                        Text(text = smartSortDescription(mode), style = MaterialTheme.typography.bodySmall, color = colors.textMuted)
++                    }
++                    Box(
++                        modifier = Modifier
++                            .size(22.dp)
++                            .clip(CircleShape)
++                            .border(2.dp, if (isSelected) colors.accent else colors.borderStrong, CircleShape),
++                        contentAlignment = Alignment.Center,
++                    ) {
++                        if (isSelected) {
++                            Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(colors.accent))
++                        }
++                    }
++                }
++            }
++        }
++        GroupCard {
++            SwitchRow(
++                title = stringResource(Res.string.smart_streams_remember),
++                subtitle = stringResource(Res.string.smart_streams_remember_description),
++                checked = state.settings.rememberChoices,
++                onCheckedChange = { checked -> SmartStreamSettingsRepository.update { it.copy(rememberChoices = checked) } },
++            )
++        }
++    }
++}
++
++@Composable
++private fun SmartFiltersSheet(state: SmartStreamsState, onDismiss: () -> Unit) {
++    val labels = rememberSmartLabels()
++    val filters = state.settings.filters
++    SmartSheet(onDismiss = onDismiss) { close ->
++        SheetTitle(stringResource(Res.string.smart_streams_filters))
++        SmartFilterSections(filters = filters, labels = labels)
++        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
++            SecondaryButton(
++                text = stringResource(Res.string.smart_streams_reset),
++                onClick = { updateFilters { SmartStreamFilters() } },
++                modifier = Modifier.weight(1f),
++            )
++            PrimaryButton(
++                text = stringResource(Res.string.smart_streams_show_count, state.result?.shownCount ?: 0),
++                onClick = close,
++                modifier = Modifier.weight(2f),
++            )
++        }
++    }
++}
++
++@Composable
++private fun SmartFilterSections(filters: SmartStreamFilters, labels: SmartLabels) {
++    ChipSection(
++        title = stringResource(Res.string.smart_streams_section_resolution),
++        options = SmartResolution.entries.reversed(),
++        selected = filters.resolutions,
++        label = { it.label },
++        onToggle = { value -> updateFilters { it.copy(resolutions = it.resolutions.toggle(value)) } },
++    )
++    ChipSection(
++        title = stringResource(Res.string.smart_streams_section_hdr),
++        options = SmartHdrFilter.entries,
++        selected = filters.hdr,
++        label = { it.label },
++        onToggle = { value -> updateFilters { it.copy(hdr = it.hdr.toggle(value)) } },
++    )
++    ChipSection(
++        title = stringResource(Res.string.smart_streams_section_video),
++        options = listOf(SmartCodec.HEVC, SmartCodec.H264, SmartCodec.AV1),
++        selected = filters.codecs,
++        label = { labels.codec(it) },
++        onToggle = { value -> updateFilters { it.copy(codecs = it.codecs.toggle(value)) } },
++    )
++    ChipSection(
++        title = stringResource(Res.string.smart_streams_section_audio),
++        options = SmartAudio.entries,
++        selected = filters.audio,
++        label = { labels.audio(it) },
++        onToggle = { value -> updateFilters { it.copy(audio = it.audio.toggle(value)) } },
++    )
++    ChipSection(
++        title = stringResource(Res.string.smart_streams_section_source),
++        options = listOf(SmartSource.REMUX, SmartSource.BLURAY, SmartSource.WEBDL, SmartSource.WEBRIP),
++        selected = filters.sources,
++        label = { it.label },
++        onToggle = { value -> updateFilters { it.copy(sources = it.sources.toggle(value)) } },
++    )
++    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++        SectionLabel("IMAX")
++        Segmented(
++            options = ImaxMode.entries.toList(),
++            selected = filters.imax,
++            label = { it.label },
++            onSelect = { mode -> updateFilters { it.copy(imax = mode) } },
++            modifier = Modifier.fillMaxWidth(),
++        )
++        SectionLabel(stringResource(Res.string.smart_streams_section_file_size))
++        Segmented(
++            options = listOf<Int?>(null, 5, 10, 20, 30),
++            selected = filters.maxSizeGb,
++            label = { gb -> if (gb == null) labels.sizeAny else labels.sizeUnder(gb) },
++            onSelect = { gb -> updateFilters { it.copy(maxSizeGb = gb) } },
++            modifier = Modifier.fillMaxWidth(),
++        )
++    }
++    GroupCard {
++        SwitchRow(
++            title = stringResource(Res.string.smart_streams_instant_only),
++            subtitle = stringResource(Res.string.smart_streams_instant_only_description),
++            checked = filters.instantOnly,
++            onCheckedChange = { checked -> updateFilters { it.copy(instantOnly = checked) } },
++        )
++        GroupDivider()
++        SwitchRow(
++            title = stringResource(Res.string.smart_streams_hide_low_quality),
++            subtitle = stringResource(Res.string.smart_streams_hide_low_quality_description),
++            checked = filters.hideLowQuality,
++            onCheckedChange = { checked -> updateFilters { it.copy(hideLowQuality = checked) } },
++        )
++    }
++}
++
++@Composable
++internal fun SmartStreamPreferencesSheet(onDismiss: () -> Unit) {
++    val colors = MaterialTheme.nuvio.colors
++    val settings by SmartStreamSettingsRepository.state.collectAsStateWithLifecycle()
++    val labels = rememberSmartLabels()
++    SmartSheet(onDismiss = onDismiss) { _ ->
++        SheetTitle(stringResource(Res.string.smart_streams_preferences_title), stringResource(Res.string.smart_streams_preferences_description))
++        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++            SectionLabel(stringResource(Res.string.smart_streams_section_sort))
++            GroupCard {
++                SmartSortMode.entries.forEachIndexed { index, mode ->
++                    if (index > 0) GroupDivider()
++                    val isSelected = mode == settings.sortMode
++                    Row(
++                        modifier = Modifier
++                            .fillMaxWidth()
++                            .heightIn(min = 56.dp)
++                            .background(if (isSelected) colors.accent.copy(alpha = 0.12f) else Color.Transparent)
++                            .clickable { SmartStreamSettingsRepository.update { it.copy(sortMode = mode) } }
++                            .padding(horizontal = 16.dp, vertical = 8.dp),
++                        verticalAlignment = Alignment.CenterVertically,
++                        horizontalArrangement = Arrangement.spacedBy(12.dp),
++                    ) {
++                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
++                            Text(
++                                text = smartSortTitle(mode),
++                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
++                                color = colors.textPrimary,
++                            )
++                            Text(text = smartSortDescription(mode), style = MaterialTheme.typography.bodySmall, color = colors.textMuted)
++                        }
++                        if (isSelected) {
++                            Icon(Icons.Rounded.Check, contentDescription = null, tint = colors.accent, modifier = Modifier.size(20.dp))
++                        }
++                    }
++                }
++            }
++        }
++        GroupCard {
++            SettingSegmentRow(title = stringResource(Res.string.smart_streams_highest_resolution)) {
++                Segmented(
++                    options = SmartResolutionLimit.entries,
++                    selected = settings.resolutionLimit,
++                    label = { labels.limit(it) },
++                    onSelect = { value -> SmartStreamSettingsRepository.update { it.copy(resolutionLimit = value) } },
++                    modifier = Modifier.width(180.dp),
++                )
++            }
++            GroupDivider()
++            SettingSegmentRow(title = stringResource(Res.string.smart_streams_on_mobile_data)) {
++                Segmented(
++                    options = SmartMobileData.entries,
++                    selected = settings.mobileData,
++                    label = { labels.mobile(it) },
++                    onSelect = { value -> SmartStreamSettingsRepository.update { it.copy(mobileData = value) } },
++                    modifier = Modifier.width(180.dp),
++                )
++            }
++            GroupDivider()
++            SwitchRow(
++                title = stringResource(Res.string.smart_streams_remember),
++                subtitle = stringResource(Res.string.smart_streams_remember_description),
++                checked = settings.rememberChoices,
++                onCheckedChange = { checked -> SmartStreamSettingsRepository.update { it.copy(rememberChoices = checked) } },
++            )
++        }
++        SmartFilterSections(filters = settings.filters, labels = labels)
++        SecondaryButton(
++            text = stringResource(Res.string.smart_streams_reset),
++            onClick = { updateFilters { SmartStreamFilters() } },
++            modifier = Modifier.fillMaxWidth(),
++        )
++    }
++}
++
++@Composable
++private fun SmartBestSheet(
++    state: SmartStreamsState,
++    best: SmartPick,
++    onPlay: () -> Unit,
++    onDismiss: () -> Unit,
++) {
++    val colors = MaterialTheme.nuvio.colors
++    val device = state.device
++    val labels = rememberSmartLabels()
++    SmartSheet(onDismiss = onDismiss) { close ->
++        val streamName = listOfNotNull(best.stream.addonName, best.stream.streamLabel.takeIf { it.isNotBlank() })
++            .joinToString(" · ")
++        SheetTitle(stringResource(Res.string.smart_streams_best_title), streamName)
++
++        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++            SectionLabel(stringResource(Res.string.smart_streams_this_device))
++            GroupCard {
++                InfoRow(stringResource(Res.string.smart_streams_screen), smartScreenLabel(device))
++                GroupDivider()
++                InfoRow(stringResource(Res.string.smart_streams_smooth_video), smartVideoLabel(device))
++                GroupDivider()
++                InfoRow(stringResource(Res.string.smart_streams_memory), device.memoryLabel)
++                GroupDivider()
++                InfoRow(stringResource(Res.string.smart_streams_connection), smartConnectionLabel(device.onWifi))
++            }
++        }
++
++        if (best.reasons.isNotEmpty()) {
++            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++                SectionLabel(stringResource(Res.string.smart_streams_why))
++                GroupCard {
++                    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
++                        best.reasons.forEach { reason ->
++                            Row(
++                                modifier = Modifier.heightIn(min = 40.dp),
++                                verticalAlignment = Alignment.CenterVertically,
++                                horizontalArrangement = Arrangement.spacedBy(12.dp),
++                            ) {
++                                Icon(
++                                    Icons.Rounded.Check,
++                                    contentDescription = null,
++                                    tint = colors.accent,
++                                    modifier = Modifier.size(18.dp),
++                                )
++                                Text(text = smartReasonText(reason), style = MaterialTheme.typography.bodyMedium, color = colors.textPrimary)
++                            }
++                        }
++                    }
++                }
++            }
++        }
++
++        GroupCard {
++            SettingSegmentRow(title = stringResource(Res.string.smart_streams_highest_resolution)) {
++                Segmented(
++                    options = SmartResolutionLimit.entries,
++                    selected = state.settings.resolutionLimit,
++                    label = { labels.limit(it) },
++                    onSelect = { value -> SmartStreamSettingsRepository.update { it.copy(resolutionLimit = value) } },
++                    modifier = Modifier.width(180.dp),
++                )
++            }
++            GroupDivider()
++            SettingSegmentRow(title = stringResource(Res.string.smart_streams_on_mobile_data)) {
++                Segmented(
++                    options = SmartMobileData.entries,
++                    selected = state.settings.mobileData,
++                    label = { labels.mobile(it) },
++                    onSelect = { value -> SmartStreamSettingsRepository.update { it.copy(mobileData = value) } },
++                    modifier = Modifier.width(180.dp),
++                )
++            }
++        }
++
++        PrimaryButton(
++            text = stringResource(Res.string.smart_streams_play_this),
++            icon = true,
++            onClick = {
++                close()
++                onPlay()
++            },
++            modifier = Modifier.fillMaxWidth(),
++        )
++    }
++}
++
++@Composable
++private fun InfoRow(label: String, value: String) {
++    val colors = MaterialTheme.nuvio.colors
++    Row(
++        modifier = Modifier
++            .fillMaxWidth()
++            .heightIn(min = 44.dp)
++            .padding(horizontal = 16.dp),
++        verticalAlignment = Alignment.CenterVertically,
++        horizontalArrangement = Arrangement.spacedBy(12.dp),
++    ) {
++        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary, modifier = Modifier.weight(1f))
++        Text(
++            text = value,
++            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
++            color = colors.textPrimary,
++        )
++    }
++}
++
++@Composable
++private fun SettingSegmentRow(title: String, control: @Composable () -> Unit) {
++    Row(
++        modifier = Modifier
++            .fillMaxWidth()
++            .heightIn(min = 56.dp)
++            .padding(start = 16.dp, end = 8.dp),
++        verticalAlignment = Alignment.CenterVertically,
++        horizontalArrangement = Arrangement.spacedBy(12.dp),
++    ) {
++        Text(
++            text = title,
++            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
++            color = MaterialTheme.nuvio.colors.textPrimary,
++            modifier = Modifier.weight(1f),
++        )
++        control()
++    }
++}
++
++@Composable
++internal fun SmartFiltersEmptyBlock(modifier: Modifier = Modifier) {
++    val colors = MaterialTheme.nuvio.colors
++    Column(
++        modifier = modifier
++            .fillMaxWidth()
++            .padding(horizontal = 24.dp, vertical = 32.dp),
++        horizontalAlignment = Alignment.CenterHorizontally,
++        verticalArrangement = Arrangement.spacedBy(12.dp),
++    ) {
++        Text(
++            text = stringResource(Res.string.smart_streams_empty_title),
++            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
++            color = colors.textPrimary,
++        )
++        Text(
++            text = stringResource(Res.string.smart_streams_empty_message),
++            style = MaterialTheme.typography.bodyMedium,
++            color = colors.textMuted,
++        )
++        SecondaryButton(
++            text = stringResource(Res.string.smart_streams_clear_filters),
++            onClick = { updateFilters { SmartStreamFilters() } },
++            modifier = Modifier.width(200.dp),
++        )
++    }
++}
++
++internal fun LazyListScope.smartSortedStreamSection(
++    streams: List<StreamItem>,
++    bestStream: StreamItem?,
++    debridEnabled: Boolean,
++    appendInstantServiceToDefaultName: Boolean,
++    showFileSizeBadges: Boolean,
++    showAddonLogo: Boolean,
++    badgePlacement: StreamBadgePlacement,
++    torrentNotSupportedText: String,
++    onStreamSelected: (stream: StreamItem, resumePositionMs: Long?, resumeProgressFraction: Float?) -> Unit,
++    onStreamLongPress: (StreamItem) -> Unit,
++    resumePositionMs: Long?,
++    resumeProgressFraction: Float?,
++) {
++    itemsIndexed(
++        items = streams,
++        key = { index, stream ->
++            streamCardRenderKey(sectionKey = "smart", sourceIndex = 0, itemIndex = index, stream = stream)
++        },
++    ) { _, stream ->
++        val isSelectable = stream.isSelectableForPlayback(debridEnabled)
++        val isUnsupportedTorrentStream =
++            stream.needsLocalDebridResolve &&
++                !AppFeaturePolicy.p2pEnabled &&
++                !(debridEnabled && stream.isAddonDebridCandidate)
++        StreamCard(
++            stream = stream,
++            enabled = isSelectable || isUnsupportedTorrentStream,
++            appendInstantServiceToDefaultName = appendInstantServiceToDefaultName,
++            showFileSizeBadges = showFileSizeBadges,
++            showAddonLogo = showAddonLogo,
++            badgePlacement = badgePlacement,
++            isCurrent = stream == bestStream,
++            currentLabel = if (stream == bestStream) stringResource(Res.string.smart_streams_best_match) else null,
++            onClick = {
++                if (isSelectable) {
++                    onStreamSelected(stream, resumePositionMs, resumeProgressFraction)
++                } else if (isUnsupportedTorrentStream) {
++                    NuvioToastController.show(torrentNotSupportedText)
++                }
++            },
++            onLongClick = {
++                if (stream.playableDirectUrl != null || stream.shouldOpenExternally || stream.isAddonDebridCandidate) {
++                    onStreamLongPress(stream)
++                }
++            },
++        )
++        Spacer(modifier = Modifier.height(10.dp))
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.kt
+new file mode 100644
+index 0000000..4606e80
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.kt
+@@ -0,0 +1,77 @@
++package com.nuvio.app.features.streams
++
++import com.nuvio.app.features.downloads.DownloadNetworkGuard
++import com.nuvio.app.features.player.PlaybackMemoryInfo
++
++internal data class SmartScreenInfo(
++    val longSidePx: Int,
++    val shortSidePx: Int,
++    val hdrFormats: Set<SmartHdr>,
++    val hevcHardware: Boolean,
++    val av1Hardware: Boolean,
++    val decodes4k: Boolean,
++    val externalDisplay: Boolean,
++    val isTablet: Boolean,
++) {
++    val hdr: Boolean
++        get() = hdrFormats.isNotEmpty()
++}
++
++internal expect fun readSmartScreenInfo(): SmartScreenInfo
++
++internal data class SmartDeviceProfile(
++    val screen: SmartScreenInfo,
++    val onWifi: Boolean,
++    val memoryMb: Int,
++) {
++    val memoryTier: SmartMemoryTier
++        get() = when {
++            memoryMb < LOW_MEMORY_MB -> SmartMemoryTier.LOW
++            memoryMb < AMPLE_MEMORY_MB -> SmartMemoryTier.LIMITED
++            else -> SmartMemoryTier.AMPLE
++        }
++
++    val maxComfortableLines: Int
++        get() = when {
++            !screen.decodes4k -> 1080
++            memoryTier == SmartMemoryTier.LOW -> 1080
++            else -> 2160
++        }
++
++    val videoLines: Int
++        get() = if (screen.externalDisplay) {
++            2160
++        } else {
++            minOf(screen.shortSidePx, screen.longSidePx * 9 / 16).coerceAtLeast(480)
++        }
++
++    val memoryLabel: String
++        get() {
++            val tenths = (memoryMb * 10 + 512) / 1024
++            return "${tenths / 10}.${tenths % 10} GB"
++        }
++
++    companion object {
++        const val LOW_MEMORY_MB = 3000
++        const val AMPLE_MEMORY_MB = 5500
++    }
++}
++
++internal enum class SmartMemoryTier { LOW, LIMITED, AMPLE }
++
++internal fun currentSmartDeviceProfile(): SmartDeviceProfile = SmartDeviceProfile(
++    screen = runCatching { readSmartScreenInfo() }.getOrElse {
++        SmartScreenInfo(
++            longSidePx = 1920,
++            shortSidePx = 1080,
++            hdrFormats = emptySet(),
++            hevcHardware = true,
++            av1Hardware = false,
++            decodes4k = false,
++            externalDisplay = false,
++            isTablet = false,
++        )
++    },
++    onWifi = runCatching { DownloadNetworkGuard.isOnWifi() }.getOrDefault(true),
++    memoryMb = runCatching { PlaybackMemoryInfo.deviceMemoryMb() }.getOrDefault(4096),
++)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLabels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLabels.kt
+new file mode 100644
+index 0000000..9ff59fe
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLabels.kt
+@@ -0,0 +1,130 @@
++package com.nuvio.app.features.streams
++
++import androidx.compose.runtime.Composable
++import com.nuvio.app.features.player.languageLabelResForCode
++import nuvio.composeapp.generated.resources.*
++import org.jetbrains.compose.resources.stringResource
++
++internal class SmartLabels(
++    private val limitAuto: String,
++    private val saveData: String,
++    private val bestQuality: String,
++    private val codecOther: String,
++    private val audioStereo: String,
++    private val underSizeTemplate: String,
++    private val sizeUnderTemplate: String,
++    val sizeAny: String,
++    val instantOnly: String,
++    val showingLowQuality: String,
++) {
++    fun limit(value: SmartResolutionLimit): String = when (value) {
++        SmartResolutionLimit.AUTO -> limitAuto
++        SmartResolutionLimit.P1080 -> "1080p"
++        SmartResolutionLimit.P4K -> "4K"
++    }
++
++    fun mobile(value: SmartMobileData): String = when (value) {
++        SmartMobileData.SAVE_DATA -> saveData
++        SmartMobileData.BEST_QUALITY -> bestQuality
++    }
++
++    fun codec(value: SmartCodec): String = if (value == SmartCodec.OTHER) codecOther else value.label
++
++    fun audio(value: SmartAudio): String = if (value == SmartAudio.STEREO) audioStereo else value.label
++
++    fun underSize(gb: Int): String = underSizeTemplate.fill(gb)
++
++    fun sizeUnder(gb: Int): String = sizeUnderTemplate.fill(gb)
++}
++
++private fun String.fill(vararg values: Any): String =
++    values.foldIndexed(this) { index, text, value ->
++        text.replace("%${index + 1}\$d", value.toString()).replace("%${index + 1}\$s", value.toString())
++    }
++
++@Composable
++internal fun rememberSmartLabels(): SmartLabels = SmartLabels(
++    limitAuto = stringResource(Res.string.smart_streams_limit_auto),
++    saveData = stringResource(Res.string.smart_streams_mobile_save_data),
++    bestQuality = stringResource(Res.string.smart_streams_mobile_best_quality),
++    codecOther = stringResource(Res.string.smart_streams_codec_other),
++    audioStereo = stringResource(Res.string.smart_streams_audio_stereo),
++    underSizeTemplate = stringResource(Res.string.smart_streams_chip_under_size),
++    sizeUnderTemplate = stringResource(Res.string.smart_streams_size_under),
++    sizeAny = stringResource(Res.string.smart_streams_size_any),
++    instantOnly = stringResource(Res.string.smart_streams_instant_only),
++    showingLowQuality = stringResource(Res.string.smart_streams_showing_low_quality),
++)
++
++@Composable
++internal fun smartSortTitle(mode: SmartSortMode): String = stringResource(
++    when (mode) {
++        SmartSortMode.BEST_MATCH -> Res.string.smart_streams_sort_best
++        SmartSortMode.HIGHEST_QUALITY -> Res.string.smart_streams_sort_quality
++        SmartSortMode.SMALLEST_FILE -> Res.string.smart_streams_sort_smallest
++        SmartSortMode.LARGEST_FILE -> Res.string.smart_streams_sort_largest
++        SmartSortMode.ADDON_ORDER -> Res.string.smart_streams_sort_addon
++    },
++)
++
++@Composable
++internal fun smartSortDescription(mode: SmartSortMode): String = stringResource(
++    when (mode) {
++        SmartSortMode.BEST_MATCH -> Res.string.smart_streams_sort_best_description
++        SmartSortMode.HIGHEST_QUALITY -> Res.string.smart_streams_sort_quality_description
++        SmartSortMode.SMALLEST_FILE -> Res.string.smart_streams_sort_smallest_description
++        SmartSortMode.LARGEST_FILE -> Res.string.smart_streams_sort_largest_description
++        SmartSortMode.ADDON_ORDER -> Res.string.smart_streams_sort_addon_description
++    },
++)
++
++@Composable
++internal fun smartConnectionLabel(onWifi: Boolean): String =
++    stringResource(if (onWifi) Res.string.smart_streams_wifi else Res.string.smart_streams_mobile_data)
++
++@Composable
++internal fun smartScreenLabel(device: SmartDeviceProfile): String {
++    val screen = device.screen
++    val tvConnected = stringResource(Res.string.smart_streams_tv_connected)
++    return buildString {
++        if (screen.hdr) {
++            append(SmartHdr.entries.filter { it in screen.hdrFormats }.joinToString(", ") { it.label })
++            append(" · ")
++        }
++        append("${screen.longSidePx} × ${screen.shortSidePx}")
++        if (screen.externalDisplay) append(" · ").append(tvConnected)
++    }
++}
++
++@Composable
++internal fun smartVideoLabel(device: SmartDeviceProfile): String {
++    val screen = device.screen
++    val hevc = if (screen.hevcHardware) "HEVC" else stringResource(Res.string.smart_streams_software, "HEVC")
++    val codecs = listOfNotNull(hevc, "H.264", "AV1".takeIf { screen.av1Hardware }).joinToString(", ")
++    val upTo = stringResource(Res.string.smart_streams_up_to, if (screen.decodes4k) "4K" else "1080p")
++    return "$codecs · $upTo"
++}
++
++@Composable
++internal fun smartReasonText(reason: SmartReason): String = when (reason) {
++    SmartReason.Instant -> stringResource(Res.string.smart_streams_reason_instant)
++    SmartReason.NotInstant -> stringResource(Res.string.smart_streams_reason_not_instant)
++    is SmartReason.SharpestForScreen ->
++        stringResource(Res.string.smart_streams_reason_sharpest_screen, reason.resolution, reason.lines)
++    is SmartReason.SharpestWithinLimit ->
++        stringResource(Res.string.smart_streams_reason_sharpest_limit, reason.resolution)
++    is SmartReason.DecodedByChip -> stringResource(Res.string.smart_streams_reason_codec_chip, reason.codec)
++    SmartReason.H264Smooth -> stringResource(Res.string.smart_streams_reason_h264)
++    is SmartReason.HdrShown -> stringResource(Res.string.smart_streams_reason_hdr, reason.format)
++    is SmartReason.EnoughMemory -> stringResource(Res.string.smart_streams_reason_memory, reason.memory)
++    SmartReason.KeptTo1080 -> stringResource(Res.string.smart_streams_reason_kept_1080)
++    is SmartReason.PreferredLanguage -> stringResource(
++        Res.string.smart_streams_reason_language,
++        languageLabelResForCode(reason.code)?.let { stringResource(it) } ?: reason.code.uppercase(),
++    )
++    is SmartReason.SensibleSize -> stringResource(
++        Res.string.smart_streams_reason_size,
++        reason.size,
++        smartConnectionLabel(reason.onWifi),
++    )
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt
+new file mode 100644
+index 0000000..dcf6737
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt
+@@ -0,0 +1,81 @@
++package com.nuvio.app.features.streams
++
++import com.nuvio.app.features.player.DeviceLanguagePreferences
++import com.nuvio.app.features.player.PlayerSettingsRepository
++import com.nuvio.app.features.player.resolvePreferredAudioLanguageTargets
++
++internal data class SmartStreamLanguages(
++    val codes: Set<String>,
++    val multiAudio: Boolean,
++)
++
++internal object SmartLanguageReader {
++    private val tokenCodes: Map<String, String> = buildMap {
++        fun add(code: String, vararg tokens: String) = tokens.forEach { put(it, code) }
++        add("en", "eng", "english")
++        add("it", "ita", "italian", "italiano")
++        add("es", "spa", "spanish", "espanol", "español", "castellano", "latino")
++        add("fr", "fre", "fra", "french", "francais", "français", "vff", "vfq", "truefrench")
++        add("de", "ger", "deu", "german", "deutsch")
++        add("pt", "por", "portuguese", "portugues", "português", "dublado")
++        add("id", "ind", "indonesian", "indonesia")
++        add("ja", "jpn", "japanese")
++        add("ko", "kor", "korean")
++        add("zh", "zho", "chinese", "mandarin", "cantonese")
++        add("hi", "hin", "hindi")
++        add("ru", "rus", "russian")
++        add("ar", "ara", "arabic")
++        add("tr", "tur", "turkish")
++        add("nl", "dut", "nld", "dutch")
++        add("pl", "pol", "polish")
++        add("sv", "swe", "swedish")
++        add("th", "tha", "thai")
++        add("vi", "vie", "vietnamese")
++        add("ms", "msa", "malay")
++        add("ta", "tam", "tamil")
++        add("te", "tel", "telugu")
++        add("uk", "ukr", "ukrainian")
++        add("he", "heb", "hebrew")
++        add("cs", "cze", "ces", "czech")
++        add("hu", "hun", "hungarian")
++        add("el", "gre", "ell", "greek")
++        add("da", "dan", "danish")
++        add("no", "nor", "norwegian")
++        add("fi", "fin", "finnish")
++        add("ro", "rum", "ron", "romanian")
++    }
++
++    private val flagCodes: Map<String, String> = mapOf(
++        "🇬🇧" to "en", "🇺🇸" to "en", "🇮🇹" to "it", "🇪🇸" to "es", "🇲🇽" to "es",
++        "🇫🇷" to "fr", "🇩🇪" to "de", "🇵🇹" to "pt", "🇧🇷" to "pt", "🇮🇩" to "id",
++        "🇯🇵" to "ja", "🇰🇷" to "ko", "🇨🇳" to "zh", "🇹🇼" to "zh", "🇭🇰" to "zh",
++        "🇮🇳" to "hi", "🇷🇺" to "ru", "🇸🇦" to "ar", "🇹🇷" to "tr", "🇳🇱" to "nl",
++        "🇵🇱" to "pl", "🇸🇪" to "sv", "🇹🇭" to "th", "🇻🇳" to "vi", "🇲🇾" to "ms",
++        "🇺🇦" to "uk", "🇮🇱" to "he", "🇨🇿" to "cs", "🇭🇺" to "hu", "🇬🇷" to "el",
++        "🇩🇰" to "da", "🇳🇴" to "no", "🇫🇮" to "fi", "🇷🇴" to "ro",
++    )
++
++    private val multiTokens = setOf("multi", "dual", "multiaudio", "dualaudio")
++
++    fun read(raw: String, text: String, parsedLanguages: List<String>): SmartStreamLanguages {
++        val codes = linkedSetOf<String>()
++        parsedLanguages.forEach { language ->
++            val key = language.trim().lowercase()
++            (tokenCodes[key] ?: key.takeIf { it.length == 2 })?.let(codes::add)
++        }
++        flagCodes.forEach { (flag, code) -> if (raw.contains(flag)) codes += code }
++        val tokens = text.split(' ').filter { it.isNotBlank() }
++        tokens.forEach { token -> tokenCodes[token]?.let(codes::add) }
++        val multi = tokens.any { it in multiTokens }
++        return SmartStreamLanguages(codes = codes, multiAudio = multi)
++    }
++
++    fun preferredLanguages(): List<String> {
++        val settings = PlayerSettingsRepository.uiState.value
++        return resolvePreferredAudioLanguageTargets(
++            preferredAudioLanguage = settings.preferredAudioLanguage,
++            secondaryPreferredAudioLanguage = settings.secondaryPreferredAudioLanguage,
++            deviceLanguages = DeviceLanguagePreferences.preferredLanguageCodes(),
++        ).map { it.substringBefore('-') }.distinct()
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt
+new file mode 100644
+index 0000000..6beb0bc
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt
+@@ -0,0 +1,245 @@
++package com.nuvio.app.features.streams
++
++import kotlinx.atomicfu.locks.SynchronizedObject
++import kotlinx.atomicfu.locks.synchronized
++
++internal enum class SmartResolution(val lines: Int, val label: String) {
++    SD(480, "SD"),
++    HD720(720, "720p"),
++    FHD1080(1080, "1080p"),
++    UHD4K(2160, "4K"),
++}
++
++internal enum class SmartHdr(val rank: Int, val label: String) {
++    HDR10(1, "HDR10"),
++    HDR10_PLUS(2, "HDR10+"),
++    DOLBY_VISION(3, "Dolby Vision"),
++}
++
++internal enum class SmartCodec(val label: String) {
++    HEVC("HEVC"),
++    H264("H.264"),
++    AV1("AV1"),
++    OTHER("Other"),
++}
++
++internal enum class SmartAudio(val label: String) {
++    ATMOS("Atmos"),
++    DOLBY_DIGITAL("DD+ / DD 5.1"),
++    DTS_TRUEHD("DTS / TrueHD"),
++    STEREO("Stereo"),
++}
++
++internal enum class SmartSource(val rank: Int, val label: String) {
++    HDTV(1, "HDTV"),
++    WEBRIP(2, "WEBRip"),
++    WEBDL(3, "WEB-DL"),
++    BLURAY(4, "Blu-ray"),
++    REMUX(5, "Remux"),
++}
++
++internal enum class SmartInstant { YES, NO, UNKNOWN }
++
++internal data class SmartStreamInfo(
++    val resolution: SmartResolution?,
++    val hdr: SmartHdr?,
++    val codec: SmartCodec?,
++    val audio: Set<SmartAudio>,
++    val source: SmartSource?,
++    val sizeBytes: Long?,
++    val instant: SmartInstant,
++    val isLowQuality: Boolean,
++    val isImax: Boolean = false,
++    val languages: SmartStreamLanguages = SmartStreamLanguages(emptySet(), multiAudio = false),
++) {
++    fun summary(instantLabel: String?): String = listOfNotNull(
++        resolution?.label,
++        codec?.takeIf { it != SmartCodec.OTHER }?.label,
++        hdr?.label,
++        instantLabel?.takeIf { instant == SmartInstant.YES },
++        languages.codes.takeIf { it.isNotEmpty() }?.joinToString("/") { it.uppercase() },
++        sizeBytes?.let(::formatSmartSize),
++    ).joinToString(" · ")
++}
++
++internal fun formatSmartSize(bytes: Long): String {
++    val gb = bytes / 1_000_000_000.0
++    return if (gb >= 1.0) {
++        val tenths = (gb * 10).toLong()
++        "${tenths / 10}.${tenths % 10} GB"
++    } else {
++        "${(bytes / 1_000_000.0).toLong()} MB"
++    }
++}
++
++internal object SmartStreamQuality {
++    private val imaxLabel = Regex("""(?i)(?<![a-z0-9])imax(?![a-z0-9])""")
++    private const val B = "(?<![a-z0-9])"
++    private const val E = "(?![a-z0-9])"
++
++    private val res4k = Regex("${B}(2160p|4k|uhd|3840x2160)$E")
++    private val res1080 = Regex("${B}(1080p|1080i|fhd|1920x1080)$E")
++    private val res720 = Regex("${B}(720p|1280x720)$E")
++    private val resSd = Regex("${B}(480p|576p|360p|sd|dvdrip|dvd)$E")
++
++    private val dolbyVision = Regex("${B}(dv|dovi|dolby ?vision)$E")
++    private val hdr10Plus = Regex("${B}(hdr10\\+|hdr10plus|hdr10p)")
++    private val hdr10 = Regex("${B}(hdr10|hdr|hlg)$E")
++
++    private val hevc = Regex("${B}(hevc|x265|h ?265)$E")
++    private val h264 = Regex("${B}(avc|x264|h ?264)$E")
++    private val av1 = Regex("${B}av1$E")
++    private val otherCodec = Regex("${B}(vp9|xvid|divx|mpeg2)$E")
++
++    private val atmos = Regex("${B}atmos$E")
++    private val dolbyDigital = Regex("${B}(ddp|dd\\+|eac3|e ac 3|ac3|dd|dolby digital( plus)?)")
++    private val dtsTrueHd = Regex("${B}(dts|truehd|true hd)")
++    private val stereo = Regex("${B}(2 0|2ch|stereo)$E")
++    private val surround = Regex("${B}(5 1|7 1|6ch|8ch)$E")
++    private val aac = Regex("${B}aac")
++
++    private val remux = Regex("${B}remux$E")
++    private val bluray = Regex("${B}(bluray|blu ray|bdrip|brrip|bd)$E")
++    private val webdl = Regex("${B}(web dl|webdl|web)$E")
++    private val webrip = Regex("${B}(webrip|web rip)$E")
++    private val hdtv = Regex("${B}(hdtv|pdtv|dsr)$E")
++    private val lowQuality = Regex("${B}(cam|camrip|hdcam|hdts|telesync|hdtc|telecine|scr|screener|dvdscr|r5)$E")
++
++    private val instantMarkers = Regex("(\\+]|⚡|${B}(instant|cached)$E)")
++    private val notInstantMarkers = Regex("(⬇|⏳|${B}(download|uncached|not cached)$E)")
++    private val sizePattern = Regex("(\\d+(?:[.,]\\d+)?)\\s?(tb|gb|gib|mb|mib)$E")
++    private val separators = Regex("[._\\-\\[\\]()|/,:]+")
++
++    private const val CACHE_LIMIT = 3000
++    private val cache = LinkedHashMap<String, SmartStreamInfo>()
++
++    private val cacheLock = SynchronizedObject()
++
++    fun cached(stream: StreamItem): SmartStreamInfo {
++        val key = cacheKey(stream)
++        synchronized(cacheLock) { cache[key] }?.let { return it }
++        val info = read(stream)
++        synchronized(cacheLock) {
++            if (cache.size >= CACHE_LIMIT) cache.remove(cache.keys.first())
++            cache[key] = info
++        }
++        return info
++    }
++
++    private fun cacheKey(stream: StreamItem): String = buildString {
++        append(stream.addonId).append('|')
++        append(stream.url ?: stream.infoHash ?: stream.clientResolve?.infoHash.orEmpty()).append('|')
++        append(stream.fileIdx ?: -1).append('|')
++        append(stream.externalUrl.orEmpty()).append('|')
++        append(stream.name.orEmpty()).append('|')
++        append(stream.title.orEmpty()).append('|')
++        append(stream.description.orEmpty()).append('|')
++        append(stream.debridCacheStatus?.state?.name.orEmpty()).append('|')
++        append(stream.behaviorHints.videoSize ?: -1L)
++        stream.badges.forEach { append('|').append(it.name) }
++    }
++
++    fun read(stream: StreamItem): SmartStreamInfo {
++        val candidates = StreamBadgeMatcher.badgeMatchCandidates(stream).let { list ->
++            if (list.size > 1 && list.last() == list.dropLast(1).joinToString(" ")) list.dropLast(1) else list
++        }
++        val raw = buildList {
++            addAll(candidates)
++            stream.badges.forEach { add(it.name) }
++        }.joinToString(" ").lowercase()
++        val text = raw.replace(separators, " ")
++        val parsed = stream.clientResolve?.stream?.raw?.parsed
++
++        return SmartStreamInfo(
++            resolution = readResolution(text, parsed?.resolution),
++            hdr = readHdr(text, parsed?.hdr.orEmpty()),
++            codec = readCodec(text, parsed?.codec),
++            audio = readAudio(text),
++            source = readSource(text, parsed?.quality),
++            sizeBytes = stream.behaviorHints.videoSize?.takeIf { it > 0 } ?: readSize(raw),
++            instant = readInstant(stream, raw),
++            isImax = imaxLabel.containsMatchIn(raw),
++            isLowQuality = lowQuality.containsMatchIn(text) && !webdl.containsMatchIn(text) && !bluray.containsMatchIn(text),
++            languages = SmartLanguageReader.read(raw, text, parsed?.languages.orEmpty()),
++        )
++    }
++
++    private fun readResolution(text: String, parsed: String?): SmartResolution? {
++        val p = parsed?.lowercase().orEmpty()
++        return when {
++            res4k.containsMatchIn(p) || res4k.containsMatchIn(text) -> SmartResolution.UHD4K
++            res1080.containsMatchIn(p) || res1080.containsMatchIn(text) -> SmartResolution.FHD1080
++            res720.containsMatchIn(p) || res720.containsMatchIn(text) -> SmartResolution.HD720
++            resSd.containsMatchIn(p) || resSd.containsMatchIn(text) -> SmartResolution.SD
++            else -> null
++        }
++    }
++
++    private fun readHdr(text: String, parsed: List<String>): SmartHdr? {
++        val all = (parsed.joinToString(" ").lowercase() + " " + text)
++        return when {
++            dolbyVision.containsMatchIn(all) -> SmartHdr.DOLBY_VISION
++            hdr10Plus.containsMatchIn(all) -> SmartHdr.HDR10_PLUS
++            hdr10.containsMatchIn(all) -> SmartHdr.HDR10
++            else -> null
++        }
++    }
++
++    private fun readCodec(text: String, parsed: String?): SmartCodec? {
++        val all = parsed?.lowercase().orEmpty().replace('.', ' ') + " " + text
++        return when {
++            av1.containsMatchIn(all) -> SmartCodec.AV1
++            hevc.containsMatchIn(all) -> SmartCodec.HEVC
++            h264.containsMatchIn(all) -> SmartCodec.H264
++            otherCodec.containsMatchIn(all) -> SmartCodec.OTHER
++            else -> null
++        }
++    }
++
++    private fun readAudio(text: String): Set<SmartAudio> = buildSet {
++        if (atmos.containsMatchIn(text)) add(SmartAudio.ATMOS)
++        if (dolbyDigital.containsMatchIn(text)) add(SmartAudio.DOLBY_DIGITAL)
++        if (dtsTrueHd.containsMatchIn(text)) add(SmartAudio.DTS_TRUEHD)
++        if (stereo.containsMatchIn(text) || (aac.containsMatchIn(text) && !surround.containsMatchIn(text))) {
++            add(SmartAudio.STEREO)
++        }
++    }
++
++    private fun readSource(text: String, parsed: String?): SmartSource? {
++        val all = parsed?.lowercase().orEmpty().replace('-', ' ') + " " + text
++        return when {
++            remux.containsMatchIn(all) -> SmartSource.REMUX
++            bluray.containsMatchIn(all) -> SmartSource.BLURAY
++            webrip.containsMatchIn(all) -> SmartSource.WEBRIP
++            webdl.containsMatchIn(all) -> SmartSource.WEBDL
++            hdtv.containsMatchIn(all) -> SmartSource.HDTV
++            else -> null
++        }
++    }
++
++    private fun readSize(raw: String): Long? {
++        val match = sizePattern.find(raw) ?: return null
++        val number = match.groupValues[1].replace(',', '.').toDoubleOrNull() ?: return null
++        val multiplier = when (match.groupValues[2]) {
++            "tb" -> 1_000_000_000_000.0
++            "gb", "gib" -> 1_000_000_000.0
++            else -> 1_000_000.0
++        }
++        return (number * multiplier).toLong().takeIf { it > 0 }
++    }
++
++    private fun readInstant(stream: StreamItem, raw: String): SmartInstant {
++        when (stream.debridCacheStatus?.state) {
++            StreamDebridCacheState.CACHED -> return SmartInstant.YES
++            StreamDebridCacheState.NOT_CACHED -> return SmartInstant.NO
++            else -> Unit
++        }
++        if (notInstantMarkers.containsMatchIn(raw)) return SmartInstant.NO
++        if (instantMarkers.containsMatchIn(raw)) return SmartInstant.YES
++        if (!stream.isTorrentStream && stream.playableDirectUrl != null && !stream.shouldOpenExternally) {
++            return SmartInstant.YES
++        }
++        if (stream.needsLocalDebridResolve && !stream.isAddonDebridCandidate) return SmartInstant.NO
++        return SmartInstant.UNKNOWN
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
+new file mode 100644
+index 0000000..533bfcb
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
+@@ -0,0 +1,354 @@
++package com.nuvio.app.features.streams
++
++import kotlinx.coroutines.CoroutineDispatcher
++import kotlinx.coroutines.Dispatchers
++import kotlin.math.log2
++import kotlin.math.min
++
++internal data class SmartRankedStream(
++    val stream: StreamItem,
++    val info: SmartStreamInfo,
++    val score: Double,
++    val index: Int,
++)
++
++internal data class SmartAutoPlayRanking(
++    val ranked: List<SmartRankedStream>,
++    val goodEnough: Boolean,
++)
++
++internal sealed interface SmartReason {
++    data object Instant : SmartReason
++    data object NotInstant : SmartReason
++    data class SharpestForScreen(val resolution: String, val lines: Int) : SmartReason
++    data class SharpestWithinLimit(val resolution: String) : SmartReason
++    data class DecodedByChip(val codec: String) : SmartReason
++    data object H264Smooth : SmartReason
++    data class HdrShown(val format: String) : SmartReason
++    data class EnoughMemory(val memory: String) : SmartReason
++    data object KeptTo1080 : SmartReason
++    data class PreferredLanguage(val code: String) : SmartReason
++    data class SensibleSize(val size: String, val onWifi: Boolean) : SmartReason
++}
++
++internal data class SmartPick(
++    val stream: StreamItem,
++    val info: SmartStreamInfo,
++    val reasons: List<SmartReason>,
++)
++
++internal data class SmartStreamsResult(
++    val listState: StreamsUiState,
++    val sortedStreams: List<StreamItem>?,
++    val best: SmartPick?,
++    val shownCount: Int,
++    val totalCount: Int,
++    val emptyBecauseOfFilters: Boolean,
++)
++
++internal data class SmartTarget(
++    val lines: Int,
++    val explicitLimit: Int?,
++    val sweetLowMbps: Double,
++    val sweetHighMbps: Double,
++    val saveData: Boolean,
++    val languages: List<String> = emptyList(),
++)
++
++internal object SmartStreamRanking {
++    private const val BINGE_GROUP_BONUS = 25.0
++    private const val HEAVY_4K_MBPS = 40.0
++
++    val dispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1)
++
++    fun runtimeSeconds(isEpisode: Boolean): Int = if (isEpisode) 45 * 60 else 120 * 60
++
++    internal fun target(device: SmartDeviceProfile, settings: SmartStreamSettings): SmartTarget {
++        val saveData = !device.onWifi && settings.mobileData == SmartMobileData.SAVE_DATA
++        val lines = when (settings.resolutionLimit) {
++            SmartResolutionLimit.AUTO -> {
++                val capable = if (device.memoryTier == SmartMemoryTier.AMPLE) device.maxComfortableLines else 1080
++                if (saveData) min(capable, 1080) else capable
++            }
++            SmartResolutionLimit.P1080 -> 1080
++            SmartResolutionLimit.P4K -> 2160
++        }
++        val explicitLimit = if (settings.resolutionLimit == SmartResolutionLimit.P1080) 1080 else null
++        var low: Double
++        var high: Double
++        when {
++            lines <= 800 -> { low = 1.5; high = 5.0 }
++            lines <= 1300 -> { low = 4.0; high = 12.0 }
++            lines <= 1700 -> { low = 6.0; high = 25.0 }
++            else -> { low = 12.0; high = 40.0 }
++        }
++        if (saveData) {
++            low = min(low, 2.5)
++            high = min(high, 6.0)
++        }
++        return SmartTarget(
++            lines = lines,
++            explicitLimit = explicitLimit,
++            sweetLowMbps = low,
++            sweetHighMbps = high,
++            saveData = saveData,
++            languages = runCatching { SmartLanguageReader.preferredLanguages() }.getOrDefault(emptyList()),
++        )
++    }
++
++    internal fun score(
++        info: SmartStreamInfo,
++        device: SmartDeviceProfile,
++        target: SmartTarget,
++        runtimeSeconds: Int,
++    ): Double {
++        var score = 0.0
++
++        score += when (info.instant) {
++            SmartInstant.YES -> 40.0
++            SmartInstant.UNKNOWN -> 15.0
++            SmartInstant.NO -> 0.0
++        }
++
++        val lines = info.resolution?.lines
++        score += if (lines == null) {
++            15.0
++        } else {
++            30.0 * min(lines, target.lines).toDouble() / target.lines
++        }
++        if (target.explicitLimit != null && lines != null && lines > target.explicitLimit) score -= 25.0
++        if (lines != null && lines > device.maxComfortableLines) score -= 60.0
++
++        val mbps = info.sizeBytes?.let { it * 8.0 / runtimeSeconds / 1_000_000.0 }
++        score += when {
++            mbps == null -> 4.0
++            mbps < target.sweetLowMbps -> 10.0 * mbps / target.sweetLowMbps
++            mbps <= target.sweetHighMbps -> 10.0
++            else -> {
++                val perDoubling = if (target.saveData) 20.0 else 10.0
++                10.0 - min(40.0, perDoubling * log2(mbps / target.sweetHighMbps))
++            }
++        }
++
++        score += when (info.codec) {
++            SmartCodec.AV1 -> when {
++                device.screen.av1Hardware -> 6.0
++                lines != null && lines >= 2160 -> -50.0
++                else -> -30.0
++            }
++            SmartCodec.HEVC -> if (device.screen.hevcHardware) 6.0 else -30.0
++            SmartCodec.H264 -> 4.0
++            SmartCodec.OTHER -> -5.0
++            null -> 0.0
++        }
++
++        if (info.hdr != null && device.screen.hdr) {
++            if (info.hdr in device.screen.hdrFormats) {
++                val bonus = 10.0 + 4.0 * info.hdr.rank
++                score += if (target.saveData) bonus / 2 else bonus
++            } else if (info.hdr == SmartHdr.DOLBY_VISION) {
++                score -= 10.0
++            } else {
++                score += 4.0
++            }
++        }
++
++        if (device.memoryTier != SmartMemoryTier.AMPLE && lines != null && lines >= 2160) {
++            val heavy = info.source == SmartSource.REMUX || (mbps != null && mbps > HEAVY_4K_MBPS)
++            if (heavy) score -= 20.0
++        }
++
++        score += when (info.source) {
++            SmartSource.REMUX, SmartSource.BLURAY, SmartSource.WEBDL -> 6.0
++            SmartSource.WEBRIP -> 3.0
++            SmartSource.HDTV -> 1.0
++            null -> 2.0
++        }
++        score += when {
++            SmartAudio.ATMOS in info.audio || SmartAudio.DOLBY_DIGITAL in info.audio -> 3.0
++            info.audio.isNotEmpty() -> 1.0
++            else -> 0.0
++        }
++
++        score += languageScore(info.languages, target.languages)
++
++        if (info.isLowQuality) score -= 100.0
++        return score
++    }
++
++    internal fun matches(info: SmartStreamInfo, filters: SmartStreamFilters): Boolean {
++        if (filters.imax == ImaxMode.ONLY && !info.isImax) return false
++        if (filters.hideLowQuality && info.isLowQuality) return false
++        if (filters.instantOnly && info.instant != SmartInstant.YES) return false
++        if (filters.resolutions.isNotEmpty() && info.resolution !in filters.resolutions) return false
++        if (filters.hdr.isNotEmpty()) {
++            val kind = when (info.hdr) {
++                SmartHdr.DOLBY_VISION -> SmartHdrFilter.DOLBY_VISION
++                SmartHdr.HDR10, SmartHdr.HDR10_PLUS -> SmartHdrFilter.HDR10
++                null -> SmartHdrFilter.SDR
++            }
++            if (kind !in filters.hdr) return false
++        }
++        if (filters.codecs.isNotEmpty() && info.codec !in filters.codecs) return false
++        if (filters.audio.isNotEmpty() && filters.audio.none { it in info.audio }) return false
++        if (filters.sources.isNotEmpty() && info.source !in filters.sources) return false
++        val maxGb = filters.maxSizeGb
++        if (maxGb != null) {
++            val size = info.sizeBytes ?: return false
++            if (size > maxGb * 1_000_000_000L) return false
++        }
++        return true
++    }
++
++    private fun sorted(ranked: List<SmartRankedStream>, mode: SmartSortMode): List<SmartRankedStream> = when (mode) {
++        SmartSortMode.BEST_MATCH, SmartSortMode.ADDON_ORDER ->
++            ranked.sortedWith(compareByDescending<SmartRankedStream> { it.score }.thenBy { it.index })
++        SmartSortMode.HIGHEST_QUALITY -> ranked.sortedWith(
++            compareByDescending<SmartRankedStream> { it.info.resolution?.lines ?: 0 }
++                .thenByDescending { it.info.hdr?.rank ?: 0 }
++                .thenByDescending { it.info.source?.rank ?: 0 }
++                .thenByDescending { it.info.sizeBytes ?: 0L }
++                .thenBy { it.index },
++        )
++        SmartSortMode.SMALLEST_FILE -> ranked.sortedWith(
++            compareBy<SmartRankedStream> { it.info.sizeBytes ?: Long.MAX_VALUE }
++                .thenByDescending { it.score }
++                .thenBy { it.index },
++        )
++        SmartSortMode.LARGEST_FILE -> ranked.sortedWith(
++            compareByDescending<SmartRankedStream> { it.info.sizeBytes ?: -1L }
++                .thenByDescending { it.score }
++                .thenBy { it.index },
++        )
++    }
++
++    internal fun languageScore(languages: SmartStreamLanguages, preferred: List<String>): Double {
++        val primary = preferred.firstOrNull() ?: return 0.0
++        val secondary = preferred.drop(1).toSet()
++        return when {
++            primary in languages.codes -> 30.0
++            languages.codes.any { it in secondary } -> 20.0
++            languages.multiAudio && languages.codes.isEmpty() -> 8.0
++            languages.codes.isNotEmpty() -> -25.0
++            else -> 0.0
++        }
++    }
++
++    private fun preferredMatch(languages: SmartStreamLanguages, preferred: List<String>): String? =
++        preferred.firstOrNull { it in languages.codes }
++
++    private fun reasons(info: SmartStreamInfo, device: SmartDeviceProfile, target: SmartTarget): List<SmartReason> = buildList {
++        preferredMatch(info.languages, target.languages)?.let { add(SmartReason.PreferredLanguage(it)) }
++        when (info.instant) {
++            SmartInstant.YES -> add(SmartReason.Instant)
++            SmartInstant.NO -> add(SmartReason.NotInstant)
++            SmartInstant.UNKNOWN -> Unit
++        }
++        info.resolution?.let { resolution ->
++            if (resolution.lines > target.lines) {
++                add(SmartReason.SharpestForScreen(resolution.label, device.videoLines))
++            } else {
++                add(SmartReason.SharpestWithinLimit(resolution.label))
++            }
++        }
++        when (info.codec) {
++            SmartCodec.HEVC -> if (device.screen.hevcHardware) add(SmartReason.DecodedByChip("HEVC"))
++            SmartCodec.H264 -> add(SmartReason.H264Smooth)
++            SmartCodec.AV1 -> if (device.screen.av1Hardware) add(SmartReason.DecodedByChip("AV1"))
++            else -> Unit
++        }
++        if (info.hdr != null && info.hdr in device.screen.hdrFormats) add(SmartReason.HdrShown(info.hdr.label))
++        if (info.resolution != null && info.resolution.lines >= 2160 && device.memoryTier == SmartMemoryTier.AMPLE) {
++            add(SmartReason.EnoughMemory(device.memoryLabel))
++        }
++        if (device.maxComfortableLines < 2160 || device.memoryTier != SmartMemoryTier.AMPLE) {
++            if (info.resolution != null && info.resolution.lines <= 1080) add(SmartReason.KeptTo1080)
++        }
++        info.sizeBytes?.let { size ->
++            add(SmartReason.SensibleSize(formatSmartSize(size), device.onWifi))
++        }
++    }
++
++    fun rankForAutoPlay(
++        streams: List<StreamItem>,
++        settings: SmartStreamSettings,
++        device: SmartDeviceProfile,
++        debridEnabled: Boolean,
++        isEpisode: Boolean,
++        preferredBingeGroup: String? = null,
++    ): SmartAutoPlayRanking {
++        val bingeGroup = preferredBingeGroup?.trim()?.takeIf { it.isNotEmpty() }
++        val runtime = runtimeSeconds(isEpisode)
++        val target = target(device, settings)
++        val ranked = streams
++            .filter { it.isSelectableForPlayback(debridEnabled) }
++            .mapIndexed { index, stream ->
++                val info = SmartStreamQuality.cached(stream)
++                val bingeBonus = if (bingeGroup != null && stream.behaviorHints.bingeGroup == bingeGroup) BINGE_GROUP_BONUS else 0.0
++                SmartRankedStream(stream, info, score(info, device, target, runtime) + bingeBonus, index)
++            }
++            .filter { matches(it.info, settings.filters.copy(hideLowQuality = true)) }
++            .sortedWith(compareByDescending<SmartRankedStream> { it.score }.thenBy { it.index })
++            .let { all -> all.filter { it.info.instant != SmartInstant.NO }.ifEmpty { all } }
++        val ordered = if (settings.filters.imax == ImaxMode.PREFER) ranked.sortedByDescending { it.info.isImax } else ranked
++        val best = ordered.firstOrNull()
++        val goodEnough = best != null &&
++            best.info.instant == SmartInstant.YES &&
++            (best.info.resolution?.lines ?: 0) >= minOf(target.lines, device.maxComfortableLines)
++        return SmartAutoPlayRanking(ranked = ordered, goodEnough = goodEnough)
++    }
++
++    fun compute(
++        listState: StreamsUiState,
++        allState: StreamsUiState,
++        settings: SmartStreamSettings,
++        device: SmartDeviceProfile,
++        debridEnabled: Boolean,
++        isEpisode: Boolean,
++    ): SmartStreamsResult {
++        val runtime = runtimeSeconds(isEpisode)
++        val target = target(device, settings)
++        fun infoOf(stream: StreamItem): SmartStreamInfo = SmartStreamQuality.cached(stream)
++
++        val candidates = allState.groups.flatMap { it.streams }
++            .filter { it.isSelectableForPlayback(debridEnabled) }
++            .mapIndexed { index, stream ->
++                val info = infoOf(stream)
++                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
++            }
++        val eligible = if (settings.filters.imax == ImaxMode.ONLY) candidates.filter { it.info.isImax } else candidates
++        val ordinaryQuality = eligible.filterNot { it.info.isLowQuality }.ifEmpty { eligible }
++        val decent = if (settings.filters.imax == ImaxMode.PREFER) {
++            ordinaryQuality.filter { it.info.isImax }.ifEmpty { ordinaryQuality }
++        } else ordinaryQuality
++        val top = decent.maxWithOrNull(compareBy<SmartRankedStream> { it.score }.thenByDescending { it.index })
++        val best = top?.let { SmartPick(it.stream, it.info, reasons(it.info, device, target)) }
++
++        val filters = settings.filters
++        val filteredGroups = listState.groups.map { group ->
++            group.copy(streams = group.streams.filter { matches(infoOf(it), filters) })
++        }
++        val filteredState = listState.copy(groups = filteredGroups)
++        val total = listState.filteredGroups.sumOf { it.streams.size }
++        val shown = filteredState.filteredGroups.sumOf { it.streams.size }
++
++        val sortedStreams = if (settings.sortMode == SmartSortMode.ADDON_ORDER) {
++            null
++        } else {
++            val ranked = filteredState.filteredGroups.flatMap { it.streams }.mapIndexed { index, stream ->
++                val info = infoOf(stream)
++                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
++            }
++            sorted(ranked, settings.sortMode).map { it.stream }
++        }
++
++        return SmartStreamsResult(
++            listState = filteredState,
++            sortedStreams = sortedStreams,
++            best = best,
++            shownCount = shown,
++            totalCount = total,
++            emptyBecauseOfFilters = total > 0 && shown == 0,
++        )
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt
+new file mode 100644
+index 0000000..c724230
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettings.kt
+@@ -0,0 +1,139 @@
++package com.nuvio.app.features.streams
++
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.StateFlow
++import kotlinx.coroutines.flow.asStateFlow
++
++internal enum class SmartSortMode {
++    BEST_MATCH,
++    HIGHEST_QUALITY,
++    SMALLEST_FILE,
++    LARGEST_FILE,
++    ADDON_ORDER,
++}
++
++internal enum class SmartResolutionLimit {
++    AUTO,
++    P1080,
++    P4K,
++}
++
++internal enum class SmartMobileData {
++    SAVE_DATA,
++    BEST_QUALITY,
++}
++
++internal enum class SmartHdrFilter(val label: String) {
++    DOLBY_VISION("Dolby Vision"),
++    HDR10("HDR10 / HDR10+"),
++    SDR("SDR"),
++}
++
++internal enum class ImaxMode(val label: String) {
++    OFF("Off"), PREFER("Prefer IMAX"), ONLY("IMAX only")
++}
++
++internal data class SmartStreamFilters(
++    val resolutions: Set<SmartResolution> = emptySet(),
++    val hdr: Set<SmartHdrFilter> = emptySet(),
++    val codecs: Set<SmartCodec> = emptySet(),
++    val audio: Set<SmartAudio> = emptySet(),
++    val sources: Set<SmartSource> = emptySet(),
++    val maxSizeGb: Int? = null,
++    val instantOnly: Boolean = false,
++    val hideLowQuality: Boolean = true,
++    val imax: ImaxMode = ImaxMode.OFF,
++) {
++    val activeCount: Int
++        get() = (if (imax == ImaxMode.OFF) 0 else 1) + resolutions.size + hdr.size + codecs.size + audio.size + sources.size +
++            (if (maxSizeGb != null) 1 else 0) + (if (instantOnly) 1 else 0) + (if (!hideLowQuality) 1 else 0)
++}
++
++internal data class SmartStreamSettings(
++    val sortMode: SmartSortMode = SmartSortMode.BEST_MATCH,
++    val rememberChoices: Boolean = true,
++    val filters: SmartStreamFilters = SmartStreamFilters(),
++    val resolutionLimit: SmartResolutionLimit = SmartResolutionLimit.AUTO,
++    val mobileData: SmartMobileData = SmartMobileData.SAVE_DATA,
++    val autoPlay: Boolean = false,
++)
++
++internal expect object SmartStreamSettingsStorage {
++    fun load(): String?
++    fun save(value: String)
++}
++
++internal object SmartStreamSettingsRepository {
++    private val _state = MutableStateFlow(decode(runCatching { SmartStreamSettingsStorage.load() }.getOrNull()))
++    val state: StateFlow<SmartStreamSettings> = _state.asStateFlow()
++
++    fun update(transform: (SmartStreamSettings) -> SmartStreamSettings) {
++        val next = transform(_state.value)
++        if (next == _state.value) return
++        _state.value = next
++        runCatching { SmartStreamSettingsStorage.save(encode(next)) }
++    }
++
++    fun onStreamsScreenClosed() {
++        val current = _state.value
++        if (current.rememberChoices) return
++        update { it.copy(sortMode = SmartSortMode.BEST_MATCH, filters = SmartStreamFilters()) }
++    }
++
++    internal fun encode(settings: SmartStreamSettings): String {
++        val keepChoices = settings.rememberChoices
++        val sort = if (keepChoices) settings.sortMode else SmartSortMode.BEST_MATCH
++        val f = if (keepChoices) settings.filters else SmartStreamFilters()
++        return listOf(
++            "sort=${sort.name}",
++            "remember=${if (settings.rememberChoices) 1 else 0}",
++            "limit=${settings.resolutionLimit.name}",
++            "mobile=${settings.mobileData.name}",
++            "auto=${if (settings.autoPlay) 1 else 0}",
++            "res=${f.resolutions.joinToString(",") { it.name }}",
++            "hdr=${f.hdr.joinToString(",") { it.name }}",
++            "codec=${f.codecs.joinToString(",") { it.name }}",
++            "audio=${f.audio.joinToString(",") { it.name }}",
++            "source=${f.sources.joinToString(",") { it.name }}",
++            "imax=${f.imax.name}",
++            "maxgb=${f.maxSizeGb ?: ""}",
++            "instant=${if (f.instantOnly) 1 else 0}",
++            "lowq=${if (f.hideLowQuality) 1 else 0}",
++        ).joinToString(";")
++    }
++
++    internal fun decode(value: String?): SmartStreamSettings {
++        if (value.isNullOrBlank()) return SmartStreamSettings()
++        val map = value.split(';').mapNotNull { part ->
++            val index = part.indexOf('=')
++            if (index <= 0) null else part.substring(0, index) to part.substring(index + 1)
++        }.toMap()
++        return SmartStreamSettings(
++            sortMode = enumOr(map["sort"], SmartSortMode.BEST_MATCH),
++            rememberChoices = map["remember"] != "0",
++            resolutionLimit = enumOr(map["limit"], SmartResolutionLimit.AUTO),
++            mobileData = enumOr(map["mobile"], SmartMobileData.SAVE_DATA),
++            autoPlay = map["auto"] == "1",
++            filters = SmartStreamFilters(
++                resolutions = enumSet<SmartResolution>(map["res"]),
++                hdr = enumSet<SmartHdrFilter>(map["hdr"]),
++                codecs = enumSet<SmartCodec>(map["codec"]),
++                audio = enumSet<SmartAudio>(map["audio"]),
++                sources = enumSet<SmartSource>(map["source"]),
++                imax = enumOr(map["imax"], ImaxMode.OFF),
++                maxSizeGb = map["maxgb"]?.toIntOrNull(),
++                instantOnly = map["instant"] == "1",
++                hideLowQuality = map["lowq"] != "0",
++            ),
++        )
++    }
++
++    private inline fun <reified T : Enum<T>> enumOr(value: String?, fallback: T): T =
++        enumValues<T>().firstOrNull { it.name == value } ?: fallback
++
++    private inline fun <reified T : Enum<T>> enumSet(value: String?): Set<T> {
++        if (value.isNullOrBlank()) return emptySet()
++        val names = value.split(',').toSet()
++        return enumValues<T>().filter { it.name in names }.toSet()
++    }
++}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayLoadingPolicy.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayLoadingPolicy.kt
+index b6f7c9a..539deee 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayLoadingPolicy.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayLoadingPolicy.kt
+@@ -19,7 +19,7 @@ internal fun StreamsUiState.shouldUseLandscapeAutoPlayLoading(
+     manualSelection: Boolean,
+ ): Boolean =
+     !manualSelection &&
+-        settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL &&
++        (settings.streamAutoPlayMode != StreamAutoPlayMode.MANUAL || SmartStreamSettingsRepository.state.value.autoPlay) &&
+         requestToken == expectedRequestToken &&
+         autoPlayDecided &&
+         isDirectAutoPlayFlow &&
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayPolicy.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayPolicy.kt
+index 0ad4aa1..d56450e 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayPolicy.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamAutoPlayPolicy.kt
+@@ -5,6 +5,7 @@ import com.nuvio.app.features.player.PlayerSettingsUiState
+ object StreamAutoPlayPolicy {
+     fun isEffectivelyEnabled(settings: PlayerSettingsUiState): Boolean {
+         if (settings.streamReuseLastLinkEnabled) return true
++        if (SmartStreamSettingsRepository.state.value.autoPlay) return true
+         if (settings.streamAutoPlayReuseBingeGroup && settings.streamAutoPlayPreferBingeGroup) return true
+ 
+         return when (settings.streamAutoPlayMode) {
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamModels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamModels.kt
+index b380ba0..e3c3046 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamModels.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamModels.kt
+@@ -327,6 +327,7 @@ data class StreamsUiState(
+     val isDirectAutoPlayFlow: Boolean = false,
+     val showDirectAutoPlayOverlay: Boolean = false,
+     val overlayMessage: String? = null,
++    val smartAutoPlaySearch: SmartAutoPlaySearch? = null,
+ ) {
+     val filteredGroups: List<AddonStreamGroup>
+         get() = if (selectedFilter == null) groups
+@@ -338,3 +339,9 @@ data class StreamsUiState(
+     val hasAnyStreams: Boolean
+         get() = groups.any { it.streams.isNotEmpty() }
+ }
++
++data class SmartAutoPlaySearch(
++    val loadedSources: Int,
++    val totalSources: Int,
++    val candidateSummary: String?,
++)
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsRepository.kt
+index 7562243..caa0a7b 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsRepository.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsRepository.kt
+@@ -102,9 +102,14 @@ object StreamsRepository {
+         val debridSettings = DebridSettingsRepository.snapshot()
+         val streamBadgeRules = StreamBadgeSettingsRepository.snapshot()
+         val autoPlayMode = playerSettings.streamAutoPlayMode
+-        val isAutoPlayEnabled = !manualSelection && autoPlayMode != StreamAutoPlayMode.MANUAL &&
+-            !(autoPlayMode == StreamAutoPlayMode.REGEX_MATCH &&
+-                !StreamAutoPlayPolicy.isRegexSelectionConfigured(playerSettings.streamAutoPlayRegex))
++        val smartSettings = SmartStreamSettingsRepository.state.value
++        val smartAutoPlay = !manualSelection && smartSettings.autoPlay
++        val smartDevice = if (smartAutoPlay) currentSmartDeviceProfile() else null
++        val isAutoPlayEnabled = smartAutoPlay || (
++            !manualSelection && autoPlayMode != StreamAutoPlayMode.MANUAL &&
++                !(autoPlayMode == StreamAutoPlayMode.REGEX_MATCH &&
++                    !StreamAutoPlayPolicy.isRegexSelectionConfigured(playerSettings.streamAutoPlayRegex))
++            )
+ 
+         // Look up persisted binge group when both settings are enabled
+         val persistedBingeGroup = if (
+@@ -257,8 +262,26 @@ object StreamsRepository {
+             val installedAddonIds = streamAddons.map { it.addonId }.toSet()
+             var autoSelectTriggered = false
+             var timeoutElapsed = false
++            fun smartRanking(): SmartAutoPlayRanking? = smartDevice?.let { device ->
++                SmartStreamRanking.rankForAutoPlay(
++                    streams = _uiState.value.groups.flatMap { it.streams },
++                    settings = smartSettings,
++                    device = device,
++                    debridEnabled = debridSettings.canResolvePlayableLinks,
++                    isEpisode = season != null && episode != null,
++                    preferredBingeGroup = persistedBingeGroup,
++                )
++            }
++
++            fun smartEvaluation(ranking: SmartAutoPlayRanking): StreamAutoPlayEvaluation {
++                val ready = ranking.ranked.map { it.stream }
++                return StreamAutoPlayEvaluation(stream = ready.firstOrNull(), readyStreams = ready)
++            }
++
+             fun evaluateAutoPlay(bingeGroupOnly: Boolean = false): StreamAutoPlayEvaluation =
+-                StreamAutoPlaySelector.evaluateAutoPlayStream(
++                if (smartAutoPlay && !bingeGroupOnly) {
++                    smartRanking()?.let(::smartEvaluation) ?: StreamAutoPlayEvaluation()
++                } else StreamAutoPlaySelector.evaluateAutoPlayStream(
+                     streams = _uiState.value.groups.flatMap { it.streams },
+                     mode = autoPlayMode,
+                     regexPattern = playerSettings.streamAutoPlayRegex,
+@@ -331,6 +354,26 @@ object StreamsRepository {
+                     }
+                 }
+ 
++                if (smartAutoPlay) {
++                    val ranking = smartRanking() ?: return
++                    val groups = _uiState.value.groups.filterNot { it.addonId == "downloaded" }
++                    _uiState.update { current ->
++                        current.copy(
++                            smartAutoPlaySearch = SmartAutoPlaySearch(
++                                loadedSources = groups.count { !it.isLoading },
++                                totalSources = groups.size,
++                                candidateSummary = ranking.ranked.firstOrNull()?.info?.summary(instantLabel = null),
++                            ),
++                        )
++                    }
++                    val allLoaded = groups.none { it.isLoading }
++                    when {
++                        allLoaded -> settleAutoPlay(smartEvaluation(ranking))
++                        timeoutElapsed && ranking.ranked.isNotEmpty() -> settleAutoPlay(smartEvaluation(ranking))
++                    }
++                    return
++                }
++
+                 val earlyEvaluation = when {
+                     timeoutElapsed -> evaluateAutoPlay()
+                     persistedBingeGroup != null -> evaluateAutoPlay(bingeGroupOnly = true)
+@@ -383,7 +426,19 @@ object StreamsRepository {
+ 
+             updateAutoPlayAfterStreamsChanged()
+ 
+-            val timeoutJob = if (isDirectAutoPlayFlow) {
++            val timeoutJob = if (smartAutoPlay) {
++                val timeoutSeconds = playerSettings.streamAutoPlayTimeoutSeconds
++                val maxWaitMs = when {
++                    timeoutSeconds <= 0 -> 0L
++                    timeoutSeconds == Int.MAX_VALUE -> SMART_AUTOPLAY_UNLIMITED_WAIT_MS
++                    else -> timeoutSeconds * 1_000L
++                }
++                launch {
++                    delay(maxWaitMs)
++                    timeoutElapsed = true
++                    updateAutoPlayAfterStreamsChanged()
++                }
++            } else if (isDirectAutoPlayFlow) {
+                 val timeoutSeconds = playerSettings.streamAutoPlayTimeoutSeconds
+                 val isUnlimitedTimeout = timeoutSeconds == Int.MAX_VALUE
+                 // Timeout semantics:
+@@ -589,3 +644,5 @@ object StreamsRepository {
+         _uiState.update { it.copy(showDirectAutoPlayOverlay = visible, overlayMessage = message) }
+     }
+ }
++
++private const val SMART_AUTOPLAY_UNLIMITED_WAIT_MS = 60_000L
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
+index 5ac3092..3b3bf03 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
+@@ -470,8 +470,16 @@ private fun MobileStreamsLayout(
+                     onFilterSelected = { addonId -> StreamsRepository.selectFilter(addonId) },
+                     onRefresh = onRefresh,
+                 )
++                val smart = rememberSmartStreams(uiState, uiState, debridEnabled, isEpisode)
++                SmartStreamControls(smart, onPlay = { onStreamSelected(it, resumePositionMs, resumeProgressFraction) })
++                if (smart.result?.emptyBecauseOfFilters == true) {
++                    SmartFiltersEmptyBlock(modifier = Modifier.weight(1f))
++                    return@Column
++                }
+                 StreamList(
+-                    uiState = uiState,
++                    smartStreams = smart.result?.sortedStreams,
++                    bestStream = smart.result?.best?.stream,
++                    uiState = smart.result?.listState ?: uiState,
+                     debridEnabled = debridEnabled,
+                     appendInstantServiceToDefaultName = appendInstantServiceToDefaultName,
+                     onStreamSelected = onStreamSelected,
+@@ -688,6 +696,8 @@ private fun EpisodeHeroBlock(
+ 
+ @Composable
+ internal fun StreamList(
++    smartStreams: List<StreamItem>? = null,
++    bestStream: StreamItem? = null,
+     uiState: StreamsUiState,
+     debridEnabled: Boolean,
+     appendInstantServiceToDefaultName: Boolean,
+@@ -768,7 +778,14 @@ internal fun StreamList(
+             }
+ 
+             else -> {
+-                filteredGroups.forEachIndexed { groupIndex, group ->
++                if (smartStreams != null) {
++                    smartSortedStreamSection(
++                        smartStreams, bestStream, debridEnabled, appendInstantServiceToDefaultName,
++                        streamBadgeSettings.showFileSizeBadges, streamBadgeSettings.showAddonLogo,
++                        streamBadgeSettings.badgePlacement, torrentNotSupportedText, onStreamSelected,
++                        onStreamLongPress, resumePositionMs, resumeProgressFraction,
++                    )
++                } else filteredGroups.forEachIndexed { groupIndex, group ->
+                     streamSection(
+                         sectionKey = streamSectionRenderKey(groupIndex = groupIndex, group = group),
+                         group = group,
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsTabletLayout.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsTabletLayout.kt
+index 562f2a1..2b0f9e1 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsTabletLayout.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsTabletLayout.kt
+@@ -219,8 +219,16 @@ internal fun TabletStreamsLayout(
+                                 modifier = Modifier.padding(bottom = 4.dp),
+                             )
+ 
++                            val smart = rememberSmartStreams(uiState, uiState, debridEnabled, isEpisode)
++                            SmartStreamControls(smart, onPlay = { onStreamSelected(it, resumePositionMs, resumeProgressFraction) })
++                            if (smart.result?.emptyBecauseOfFilters == true) {
++                                SmartFiltersEmptyBlock(modifier = Modifier.weight(1f))
++                                return@Column
++                            }
+                             StreamList(
+-                                uiState = uiState,
++                                smartStreams = smart.result?.sortedStreams,
++                                bestStream = smart.result?.best?.stream,
++                                uiState = smart.result?.listState ?: uiState,
+                                 debridEnabled = debridEnabled,
+                                 appendInstantServiceToDefaultName = appendInstantServiceToDefaultName,
+                                 onStreamSelected = onStreamSelected,
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
+index 2a870d1..22478b3 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
+@@ -132,6 +132,8 @@ class AppUpdaterController internal constructor(
+                     )
+                 }
+ 
++                if (shouldShowDialog) downloadUpdate()
++
+                 if (showNoUpdateFeedback && !remoteNewer) {
+                     NuvioToastController.show(noUpdateMessage(channel))
+                 }
+@@ -257,17 +259,15 @@ class AppUpdaterController internal constructor(
+             return
+         }
+ 
+-        AppUpdaterPlatform.installDownloadedApk(apkPath).onSuccess {
+-            _uiState.update { state -> state.copy(showUnknownSourcesDialog = false) }
+-        }.onFailure { error ->
+-            scope.launch {
+-                val fallbackMessage = error.message ?: getString(Res.string.updates_install_failed)
+-                _uiState.update { state ->
+-                    state.copy(
+-                        errorMessage = fallbackMessage,
+-                        showDialog = true,
+-                    )
+-                }
++        scope.launch {
++            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
++                AppUpdaterPlatform.installDownloadedApk(apkPath)
++            }
++            result.onSuccess {
++                _uiState.update { it.copy(showUnknownSourcesDialog = false) }
++            }.onFailure { error ->
++                val message = error.message ?: getString(Res.string.updates_install_failed)
++                _uiState.update { it.copy(errorMessage = message, showDialog = true) }
+             }
+         }
+     }
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdaterRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdaterRepository.kt
+index f90e8fe..bb61297 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdaterRepository.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdaterRepository.kt
+@@ -40,7 +40,7 @@ internal object AppUpdaterRepository {
+     suspend fun getLatestChannelUpdate(channel: UpdateChannel): Result<AppUpdate> = runCatching {
+         val response = httpRequestRaw(
+             method = "GET",
+-            url = "https://api.github.com/repos/NuvioMedia/NuvioMobile/${releasePath(channel)}",
++            url = "https://api.github.com/repos/nakulbhalerao120-sketch/Nuvio-Smart-Picks/${releasePath(channel)}",
+             headers = mapOf(
+                 "Accept" to "application/vnd.github+json",
+                 "User-Agent" to "NuvioMobile",
+@@ -57,7 +57,7 @@ internal object AppUpdaterRepository {
+     }
+ 
+     internal fun releasePath(channel: UpdateChannel): String = when (channel) {
+-        UpdateChannel.STABLE -> "releases/latest"
++        UpdateChannel.STABLE -> "releases?per_page=100"
+         UpdateChannel.BETA -> "releases?per_page=100"
+     }
+ 
+@@ -67,10 +67,10 @@ internal object AppUpdaterRepository {
+         supportedAbis: List<String>,
+     ): AppUpdate? {
+         val releases = when (channel) {
+-            UpdateChannel.STABLE -> listOf(json.decodeFromString<GitHubReleaseDto>(responseBody))
++            UpdateChannel.STABLE -> json.decodeFromString<List<GitHubReleaseDto>>(responseBody)
+             UpdateChannel.BETA -> json.decodeFromString<List<GitHubReleaseDto>>(responseBody)
+         }
+-        return ReleaseSelector.eligibleReleases(releases, channel).firstNotNullOfOrNull { release ->
++        return ReleaseSelector.eligibleReleases(releases.filter { it.tagName?.startsWith("auto-") == true }.map { it.copy(tagName = it.tagName?.removePrefix("auto-")) }, channel).firstNotNullOfOrNull { release ->
+             val asset = chooseBestApkAsset(release.assets, supportedAbis) ?: return@firstNotNullOfOrNull null
+             val tag = release.tagName?.takeIf { VersionUtils.parse(it) != null }
+                 ?: release.name.orEmpty()
+diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.ios.kt
+new file mode 100644
+index 0000000..6474cf0
+--- /dev/null
++++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadNetworkGuard.ios.kt
+@@ -0,0 +1,29 @@
++package com.nuvio.app.features.downloads
++
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.asStateFlow
++import platform.Network.nw_path_get_status
++import platform.Network.nw_path_is_expensive
++import platform.Network.nw_path_monitor_create
++import platform.Network.nw_path_monitor_set_queue
++import platform.Network.nw_path_monitor_set_update_handler
++import platform.Network.nw_path_monitor_start
++import platform.Network.nw_path_status_satisfied
++import platform.darwin.dispatch_get_main_queue
++
++actual object DownloadNetworkGuard {
++    // Not Wi-Fi until the monitor's first update, which arrives right after it starts.
++    private val _transportState = MutableStateFlow(false)
++    actual val transportState = _transportState.asStateFlow()
++
++    // Expensive paths are cellular and personal hotspots; the monitor only reports changes.
++    private val monitor = nw_path_monitor_create().also { monitor ->
++        nw_path_monitor_set_update_handler(monitor) { path ->
++            _transportState.value = nw_path_get_status(path) == nw_path_status_satisfied && !nw_path_is_expensive(path)
++        }
++        nw_path_monitor_set_queue(monitor, dispatch_get_main_queue())
++        nw_path_monitor_start(monitor)
++    }
++
++    actual fun isOnWifi(): Boolean = _transportState.value
++}
+diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.ios.kt
+new file mode 100644
+index 0000000..93dc0fb
+--- /dev/null
++++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/player/PlaybackMemoryInfo.ios.kt
+@@ -0,0 +1,9 @@
++package com.nuvio.app.features.player
++
++import platform.Foundation.NSProcessInfo
++
++internal actual object PlaybackMemoryInfo {
++    actual fun deviceMemoryMb(): Int = (NSProcessInfo.processInfo.physicalMemory / 1048576UL).toInt()
++
++    actual fun javaHeapBufferLimitMb(): Int = deviceMemoryMb() / 8
++}
+diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.ios.kt
+new file mode 100644
+index 0000000..54e0b1f
+--- /dev/null
++++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamDevice.ios.kt
+@@ -0,0 +1,34 @@
++package com.nuvio.app.features.streams
++
++import kotlinx.cinterop.ExperimentalForeignApi
++import kotlinx.cinterop.useContents
++import platform.UIKit.UIDevice
++import platform.UIKit.UIScreen
++import platform.UIKit.UIUserInterfaceIdiomPad
++import platform.VideoToolbox.VTIsHardwareDecodeSupported
++
++private const val CODEC_HEVC: UInt = 0x68766331u
++private const val CODEC_AV1: UInt = 0x61763031u
++
++@OptIn(ExperimentalForeignApi::class)
++internal actual fun readSmartScreenInfo(): SmartScreenInfo {
++    val screen = UIScreen.mainScreen
++    val size = screen.nativeBounds.useContents { size.width to size.height }
++    val longSide = maxOf(size.first, size.second).toInt()
++    val shortSide = minOf(size.first, size.second).toInt()
++    val hevcHardware = hardwareDecodes(CODEC_HEVC)
++    val hdrScreen = screen.potentialEDRHeadroom > 1.0
++    return SmartScreenInfo(
++        longSidePx = longSide,
++        shortSidePx = shortSide,
++        hdrFormats = if (hdrScreen && hevcHardware) SmartHdr.entries.toSet() else emptySet(),
++        hevcHardware = hevcHardware,
++        av1Hardware = hardwareDecodes(CODEC_AV1),
++        decodes4k = hevcHardware,
++        externalDisplay = UIScreen.screens.size > 1,
++        isTablet = UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad,
++    )
++}
++
++@OptIn(ExperimentalForeignApi::class)
++private fun hardwareDecodes(codec: UInt): Boolean = runCatching { VTIsHardwareDecodeSupported(codec) }.getOrDefault(false)
+diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.ios.kt
+new file mode 100644
+index 0000000..9f9d7c5
+--- /dev/null
++++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/streams/SmartStreamSettingsStorage.ios.kt
+@@ -0,0 +1,13 @@
++package com.nuvio.app.features.streams
++
++import platform.Foundation.NSUserDefaults
++
++internal actual object SmartStreamSettingsStorage {
++    private const val key = "smart_stream_sort_filter_settings"
++
++    actual fun load(): String? = NSUserDefaults.standardUserDefaults.stringForKey(key)
++
++    actual fun save(value: String) {
++        NSUserDefaults.standardUserDefaults.setObject(value, forKey = key)
++    }
++}
+diff --git a/iosApp/Configuration/Version.xcconfig b/iosApp/Configuration/Version.xcconfig
+index 32d7b2b..c8ac455 100644
+--- a/iosApp/Configuration/Version.xcconfig
++++ b/iosApp/Configuration/Version.xcconfig
+@@ -1,2 +1,2 @@
+-CURRENT_PROJECT_VERSION=159
+-MARKETING_VERSION=1.1.0-beta.2
++CURRENT_PROJECT_VERSION=162
++MARKETING_VERSION=1.1.0-beta.5
