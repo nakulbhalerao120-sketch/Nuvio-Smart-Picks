@@ -2941,10 +2941,10 @@ index 0000000..6beb0bc
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
 new file mode 100644
-index 0000000..41d58fa
+index 0000000..e9f9106
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
-@@ -0,0 +1,370 @@
+@@ -0,0 +1,382 @@
 +package com.nuvio.app.features.streams
 +
 +import kotlinx.coroutines.CoroutineDispatcher
@@ -3225,6 +3225,17 @@ index 0000000..41d58fa
 +            }.orEmpty()
 +        }
 +
++    private fun matchingStreams(streams: List<SmartRankedStream>, filters: SmartStreamFilters): List<SmartRankedStream> {
++        val strict = streams.filter { matches(it.info, filters) }
++        if (strict.isNotEmpty() || filters.resolutions.isEmpty()) return strict
++        val otherFilters = filters.copy(resolutions = emptySet())
++        return streams.filter {
++            val provider = it.stream.addonName.trim()
++            (provider.equals("Kartoons", true) || provider.equals("Cloud Picks • Kartoons", true)) &&
++                it.info.resolution == null && matches(it.info, otherFilters)
++        }
++    }
++
 +    fun rankForAutoPlay(
 +        streams: List<StreamItem>,
 +        settings: SmartStreamSettings,
@@ -3243,7 +3254,7 @@ index 0000000..41d58fa
 +                val bingeBonus = if (bingeGroup != null && stream.behaviorHints.bingeGroup == bingeGroup) BINGE_GROUP_BONUS else 0.0
 +                SmartRankedStream(stream, info, score(info, device, target, runtime) + bingeBonus, index)
 +            }
-+            .filter { matches(it.info, settings.filters.copy(hideLowQuality = true)) }
++            .let { matchingStreams(it, settings.filters.copy(hideLowQuality = true)) }
 +            .sortedWith(compareByDescending<SmartRankedStream> { it.score }.thenBy { it.index })
 +            .let { all -> all.filter { it.info.instant != SmartInstant.NO }.ifEmpty { all } }
 +        val bySize = sizeOrder(ranked, settings.filters.bigFiles)
@@ -3274,7 +3285,7 @@ index 0000000..41d58fa
 +                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
 +            }
 +        val eligible = if (settings.filters.imax == ImaxMode.ONLY) candidates.filter { it.info.isImax } else candidates
-+        val matching = if (settings.filters.bigFiles == BigFileMode.OFF) eligible else eligible.filter { matches(it.info, settings.filters) }
++        val matching = matchingStreams(eligible, settings.filters)
 +        val sized = if (settings.filters.bigFiles == BigFileMode.ONLY) sizeOrder(matching, BigFileMode.ONLY) else matching
 +        val ordinaryQuality = sized.filterNot { it.info.isLowQuality }.ifEmpty { sized }
 +        val decent = if (settings.filters.imax == ImaxMode.PREFER) {
@@ -3286,9 +3297,10 @@ index 0000000..41d58fa
 +        val best = top?.let { SmartPick(it.stream, it.info, reasons(it.info, device, target)) }
 +
 +        val filters = settings.filters
++        val allowed = matching.mapTo(mutableSetOf()) { it.stream }
 +        val largest = sized.firstOrNull()?.info?.sizeBytes
 +        val filteredGroups = listState.groups.map { group ->
-+            group.copy(streams = group.streams.filter { matches(infoOf(it), filters) && (filters.bigFiles != BigFileMode.ONLY || (largest != null && infoOf(it).sizeBytes == largest)) })
++            group.copy(streams = group.streams.filter { it in allowed && (filters.bigFiles != BigFileMode.ONLY || (largest != null && infoOf(it).sizeBytes == largest)) })
 +        }
 +        val filteredState = listState.copy(groups = filteredGroups)
 +        val total = listState.filteredGroups.sumOf { it.streams.size }
