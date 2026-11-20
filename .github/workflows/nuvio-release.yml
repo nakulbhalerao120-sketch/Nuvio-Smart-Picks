@@ -41,7 +41,17 @@ jobs:
           curl -fsS https://api.nuvio.tv/.well-known/nuvio > "$RUNNER_TEMP/account.json"
           jq -er 'select((.backend_url | rtrimstr("/"))=="https://api.nuvio.tv") | .publishable_key | select(length>0 and (test("[\\r\\n]")|not))' "$RUNNER_TEMP/account.json" > "$RUNNER_TEMP/public-key"
           printf 'NUVIO_SUPABASE_URL=https://api.nuvio.tv\nNUVIO_SUPABASE_ANON_KEY=%s\n' "$(cat "$RUNNER_TEMP/public-key")" > local.properties
-          ./gradlew --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8' -Pkotlin.daemon.jvmargs=-Xmx2048m :androidApp:assembleFullDebug -Pnuvio.android.distribution=full
+          set -o pipefail
+          build_args=(--no-daemon --max-workers=1 :androidApp:assembleFullDebug -Pnuvio.android.distribution=full)
+          log="$RUNNER_TEMP/nuvio-gradle.log"
+          if ./gradlew "${build_args[@]}" '-Dorg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8' -Pkotlin.daemon.jvmargs=-Xmx5120m 2>&1 | tee "$log"; then
+            echo 'Android build completed.'
+          else
+            rc=${PIPESTATUS[0]}
+            if ! grep -Eiq 'OutOfMemoryError|GC overhead limit exceeded|Not enough memory to run compilation|Java heap space' "$log"; then exit "$((rc == 0 ? 1 : rc))"; fi
+            echo '::warning::Compiler memory exhausted. Retrying once with Kotlin inside the Gradle process.'
+            ./gradlew "${build_args[@]}" '-Dorg.gradle.jvmargs=-Xmx7168m -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8' -Pkotlin.compiler.execution.strategy=in-process
+          fi
           cp "$(find androidApp/build/outputs/apk/full/debug -name '*.apk' -print -quit)" ../candidate.apk
       - uses: actions/upload-artifact@v4
         with:
