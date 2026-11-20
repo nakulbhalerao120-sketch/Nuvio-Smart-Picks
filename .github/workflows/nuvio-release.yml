@@ -41,7 +41,7 @@ jobs:
           curl -fsS https://api.nuvio.tv/.well-known/nuvio > "$RUNNER_TEMP/account.json"
           jq -er 'select((.backend_url | rtrimstr("/"))=="https://api.nuvio.tv") | .publishable_key | select(length>0 and (test("[\\r\\n]")|not))' "$RUNNER_TEMP/account.json" > "$RUNNER_TEMP/public-key"
           printf 'NUVIO_SUPABASE_URL=https://api.nuvio.tv\nNUVIO_SUPABASE_ANON_KEY=%s\n' "$(cat "$RUNNER_TEMP/public-key")" > local.properties
-          ./gradlew :androidApp:assembleFullDebug -Pnuvio.android.distribution=full
+          ./gradlew --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8' -Pkotlin.daemon.jvmargs=-Xmx2048m :androidApp:assembleFullDebug -Pnuvio.android.distribution=full
           cp "$(find androidApp/build/outputs/apk/full/debug -name '*.apk' -print -quit)" ../candidate.apk
       - uses: actions/upload-artifact@v4
         with:
