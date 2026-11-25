@@ -1,0 +1,54 @@
+name: Sync official Nuvio Android releases
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: nuvio-official-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Advance to compatible upstream release and dispatch signed build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream=NuvioMedia/NuvioMobile
+          tag=$(gh api "repos/$upstream/releases?per_page=100" | jq -er '[.[] | select(.draft == false and any(.assets[]; .name | endswith(".apk")))] | max_by(.published_at).tag_name')
+          [[ "$tag" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]]
+          old=$(jq -r .base release/recipe.json)
+          src="$RUNNER_TEMP/nuvio-upstream"
+          git init -q "$src"
+          git -C "$src" fetch -q --depth=1 "https://github.com/$upstream.git" "refs/tags/$tag"
+          new=$(git -C "$src" rev-parse 'FETCH_HEAD^{commit}')
+          if [[ "$old" != "$new" ]]; then
+            relation=$(gh api "repos/$upstream/compare/$old...$new" --jq .status)
+            if [[ "$relation" == behind ]]; then exit 0; fi
+            if [[ "$relation" != ahead ]]; then echo "::error::Upstream release requires a branch merge: $tag"; exit 1; fi
+            git -C "$src" checkout -q --detach "$new"
+            git -C "$src" apply --check "$GITHUB_WORKSPACE/release/phone.patch"
+            jq --arg base "$new" --arg tag "$tag" '
+              .base=$base | .upstreamTag=$tag | .build+=1 |
+              .version |= (capture("^(?<prefix>.+-beta[.])(?<n>[0-9]+)$") | .prefix + ((.n | tonumber) + 1 | tostring))
+            ' release/recipe.json > recipe.tmp
+            jq -e '.version and .build' recipe.tmp >/dev/null
+            mv recipe.tmp release/recipe.json
+            git config user.name github-actions
+            git config user.email github-actions[bot]@users.noreply.github.com
+            git add release/recipe.json
+            git commit -m "Build Nuvio v2 from official Android $tag"
+            git push origin HEAD:main
+          fi
+          version=$(jq -r .version release/recipe.json)
+          if gh release view "auto-$version" >/dev/null 2>&1; then exit 0; fi
+          if gh run list --workflow nuvio-release.yml --branch main --json status --jq '.[].status' | grep -Eq '^(queued|in_progress|waiting|requested|pending)$'; then exit 0; fi
+          gh workflow run nuvio-release.yml --ref main
