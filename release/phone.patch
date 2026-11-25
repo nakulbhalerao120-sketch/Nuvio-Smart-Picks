@@ -950,7 +950,7 @@ index 0000000..b6b6aa1
 +    <string name="smart_streams_reason_language">Audio in %1$s, your preferred language</string>
 +</resources>
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamDestination.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamDestination.kt
-index 1f47df4..03acb49 100644
+index 1f47df4..ced3533 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamDestination.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/StreamDestination.kt
 @@ -1,5 +1,7 @@
@@ -961,23 +961,16 @@ index 1f47df4..03acb49 100644
  import androidx.compose.foundation.background
  import androidx.compose.foundation.layout.Box
  import androidx.compose.foundation.layout.fillMaxSize
-@@ -311,6 +313,15 @@ internal fun StreamDestination(
-         )
-         val maxAgeMs = playerSettings.streamReuseLastLinkCacheHours * 60L * 60L * 1000L
-         val cached = StreamLinkCacheRepository.getValid(cacheKey, maxAgeMs)
-+        if (cached != null && cached.url.isNotBlank() && SmartStreamSettingsRepository.state.value.autoPlay) {
-+            reuseHandled = false
-+            val usable = opensForPlayback(cached.url, cached.requestHeaders.orEmpty())
-+            reuseHandled = true
-+            if (!usable) {
-+                StreamLinkCacheRepository.remove(cacheKey)
-+                return@LaunchedEffect
-+            }
-+        }
-         if (cached != null) {
-             if (cached.url.isBlank() && !cached.infoHash.isNullOrBlank()) {
-                 val cachedStream = StreamItem(
-@@ -500,6 +511,12 @@ internal fun StreamDestination(
+@@ -301,7 +303,7 @@ internal fun StreamDestination(
+         if (reuseHandled) return@LaunchedEffect
+         reuseHandled = true
+         if (launch.manualSelection) return@LaunchedEffect
+-        if (!playerSettings.streamReuseLastLinkEnabled) return@LaunchedEffect
++        if (!playerSettings.streamReuseLastLinkEnabled || SmartStreamSettingsRepository.state.value.autoPlay) return@LaunchedEffect
+         val cacheKey = StreamLinkCacheRepository.contentKey(
+             type = launch.type,
+             videoId = effectiveVideoId,
+@@ -500,6 +502,12 @@ internal fun StreamDestination(
              StreamsRepository.skipAutoPlayStream(selectedStream)
              return@LaunchedEffect
          }
@@ -1266,6 +1259,62 @@ index ca1cc25..d60336e 100644
                      )
                  },
              )
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeAudioPreferences.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeAudioPreferences.kt
+index 720a0f2..ee8a3bb 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeAudioPreferences.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeAudioPreferences.kt
+@@ -1,5 +1,7 @@
+ package com.nuvio.app.features.player
+ 
++import com.nuvio.app.features.streams.SmartLanguageReader
++
+ internal val PlayerScreenRuntime.contentLanguage: String?
+     get() {
+         val metadata = listOfNotNull(metaUiState.meta, playerMeta).filter {
+@@ -11,12 +13,17 @@ internal val PlayerScreenRuntime.contentLanguage: String?
+     }
+ 
+ internal val PlayerScreenRuntime.preferredAudioLanguageTargets: List<String>
+-    get() = resolvePreferredAudioLanguageTargets(
+-        preferredAudioLanguage = playerSettingsUiState.preferredAudioLanguage,
+-        secondaryPreferredAudioLanguage = playerSettingsUiState.secondaryPreferredAudioLanguage,
+-        deviceLanguages = DeviceLanguagePreferences.preferredLanguageCodes(),
+-        contentOriginalLanguage = contentLanguage,
+-    )
++    get() = SmartLanguageReader.priority
++
++private fun preferredTrack(tracks: List<AudioTrack>): AudioTrack? {
++    for (code in SmartLanguageReader.priority) {
++        tracks.firstOrNull { track ->
++            val tags = SmartLanguageReader.audioCodes(track.language.orEmpty())
++            code in tags || (tags.isEmpty() && code in SmartLanguageReader.audioCodes(track.label))
++        }?.let { return it }
++    }
++    return null
++}
+ 
+ internal data class AppliedAudioPreferences(
+     val controller: PlayerEngineController,
+@@ -33,7 +40,9 @@ internal fun PlayerScreenRuntime.applyPreferredAudioTrack(targets: List<String>)
+         tracks = audioTracks.map { it.copy(isSelected = false) },
+     )
+     if (appliedAudioPreferences != preferences) {
+-        controller.applyAudioLanguagePreferences(targets)
++        val track = preferredTrack(audioTracks)
++        if (track == null) controller.applyAudioLanguagePreferences(targets)
++        else if (!track.isSelected) controller.selectAudioTrack(track.index)
+         appliedAudioPreferences = preferences
+         preferredAudioSelectionApplied = false
+     } else {
+@@ -42,7 +51,7 @@ internal fun PlayerScreenRuntime.applyPreferredAudioTrack(targets: List<String>)
+ }
+ 
+ internal fun PlayerScreenRuntime.restorePersistedAudioPreference(preference: PersistedPlayerTrackPreference) {
+-    if (audioTracks.isEmpty()) return
++    if (audioTracks.isEmpty() || preferredTrack(audioTracks) != null) return
+     val restoredIndex = findPersistedAudioTrackIndex(audioTracks, preference)
+     if (restoredIndex < 0) return
+     playerController?.selectAudioTrack(restoredIndex)
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt
 index 7b19a34..b634563 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/player/PlayerScreenRuntimeSourceFallback.kt
@@ -2762,15 +2811,11 @@ index 0000000..9ff59fe
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt
 new file mode 100644
-index 0000000..dcf6737
+index 0000000..b6538cd
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamLanguages.kt
-@@ -0,0 +1,81 @@
+@@ -0,0 +1,82 @@
 +package com.nuvio.app.features.streams
-+
-+import com.nuvio.app.features.player.DeviceLanguagePreferences
-+import com.nuvio.app.features.player.PlayerSettingsRepository
-+import com.nuvio.app.features.player.resolvePreferredAudioLanguageTargets
 +
 +internal data class SmartStreamLanguages(
 +    val codes: Set<String>,
@@ -2817,17 +2862,29 @@ index 0000000..dcf6737
 +        "🇬🇧" to "en", "🇺🇸" to "en", "🇮🇹" to "it", "🇪🇸" to "es", "🇲🇽" to "es",
 +        "🇫🇷" to "fr", "🇩🇪" to "de", "🇵🇹" to "pt", "🇧🇷" to "pt", "🇮🇩" to "id",
 +        "🇯🇵" to "ja", "🇰🇷" to "ko", "🇨🇳" to "zh", "🇹🇼" to "zh", "🇭🇰" to "zh",
-+        "🇮🇳" to "hi", "🇷🇺" to "ru", "🇸🇦" to "ar", "🇹🇷" to "tr", "🇳🇱" to "nl",
++        "🇷🇺" to "ru", "🇸🇦" to "ar", "🇹🇷" to "tr", "🇳🇱" to "nl",
 +        "🇵🇱" to "pl", "🇸🇪" to "sv", "🇹🇭" to "th", "🇻🇳" to "vi", "🇲🇾" to "ms",
 +        "🇺🇦" to "uk", "🇮🇱" to "he", "🇨🇿" to "cs", "🇭🇺" to "hu", "🇬🇷" to "el",
 +        "🇩🇰" to "da", "🇳🇴" to "no", "🇫🇮" to "fi", "🇷🇴" to "ro",
 +    )
 +
++    val priority = listOf("hi", "mr", "en")
++    private val words = Regex("""[\p{L}\p{M}\p{N}]+""")
++    private val aliases = mapOf(
++        "hi" to "hi", "hin" to "hi", "hind" to "hi", "hindi" to "hi",
++        "हिंदी" to "hi", "हिन्दी" to "hi",
++        "mr" to "mr", "mar" to "mr", "marathi" to "mr", "मराठी" to "mr",
++        "en" to "en", "eng" to "en", "english" to "en", "इंग्रजी" to "en", "अंग्रेजी" to "en",
++    )
++    fun audioCodes(text: String): Set<String> =
++        words.findAll(text.lowercase()).mapNotNull { aliases[it.value] }.toSet()
++
 +    private val multiTokens = setOf("multi", "dual", "multiaudio", "dualaudio")
 +
 +    fun read(raw: String, text: String, parsedLanguages: List<String>): SmartStreamLanguages {
-+        val codes = linkedSetOf<String>()
++        val codes = audioCodes(raw).toMutableSet()
 +        parsedLanguages.forEach { language ->
++            codes += audioCodes(language)
 +            val key = language.trim().lowercase()
 +            (tokenCodes[key] ?: key.takeIf { it.length == 2 })?.let(codes::add)
 +        }
@@ -2838,18 +2895,11 @@ index 0000000..dcf6737
 +        return SmartStreamLanguages(codes = codes, multiAudio = multi)
 +    }
 +
-+    fun preferredLanguages(): List<String> {
-+        val settings = PlayerSettingsRepository.uiState.value
-+        return resolvePreferredAudioLanguageTargets(
-+            preferredAudioLanguage = settings.preferredAudioLanguage,
-+            secondaryPreferredAudioLanguage = settings.secondaryPreferredAudioLanguage,
-+            deviceLanguages = DeviceLanguagePreferences.preferredLanguageCodes(),
-+        ).map { it.substringBefore('-') }.distinct()
-+    }
++    fun preferredLanguages(): List<String> = priority
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt
 new file mode 100644
-index 0000000..6beb0bc
+index 0000000..39b7346
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamQuality.kt
 @@ -0,0 +1,245 @@
@@ -2958,7 +3008,7 @@ index 0000000..6beb0bc
 +    private val webdl = Regex("${B}(web dl|webdl|web)$E")
 +    private val webrip = Regex("${B}(webrip|web rip)$E")
 +    private val hdtv = Regex("${B}(hdtv|pdtv|dsr)$E")
-+    private val lowQuality = Regex("${B}(cam|camrip|hdcam|hdts|telesync|hdtc|telecine|scr|screener|dvdscr|r5)$E")
++    private val lowQuality = Regex("${B}(cam|camrip|hdcamrip|hdcam|hd ts|hdts|tsrip|tcrip|telesynch|theat(?:er|re) (?:copy|rip)|hd tc|hd cam|hd camrip|telesync|hdtc|telecine|scr|screener|dvdscr|r5)$E")
 +
 +    private val instantMarkers = Regex("(\\+]|⚡|${B}(instant|cached)$E)")
 +    private val notInstantMarkers = Regex("(⬇|⏳|${B}(download|uncached|not cached)$E)")
@@ -3014,7 +3064,7 @@ index 0000000..6beb0bc
 +            sizeBytes = stream.behaviorHints.videoSize?.takeIf { it > 0 } ?: readSize(raw),
 +            instant = readInstant(stream, raw),
 +            isImax = imaxLabel.containsMatchIn(raw),
-+            isLowQuality = lowQuality.containsMatchIn(text) && !webdl.containsMatchIn(text) && !bluray.containsMatchIn(text),
++            isLowQuality = lowQuality.containsMatchIn(text) || lowQuality.containsMatchIn(parsed?.quality.orEmpty().lowercase()),
 +            languages = SmartLanguageReader.read(raw, text, parsed?.languages.orEmpty()),
 +        )
 +    }
@@ -3100,10 +3150,10 @@ index 0000000..6beb0bc
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
 new file mode 100644
-index 0000000..093f44e
+index 0000000..ecaf397
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/SmartStreamRanking.kt
-@@ -0,0 +1,388 @@
+@@ -0,0 +1,387 @@
 +package com.nuvio.app.features.streams
 +
 +import kotlinx.coroutines.CoroutineDispatcher
@@ -3385,6 +3435,18 @@ index 0000000..093f44e
 +            }.orEmpty()
 +        }
 +
++    private fun playbackOrder(items: List<SmartRankedStream>, filters: SmartStreamFilters): List<SmartRankedStream> {
++        val sorted = items.sortedWith(compareBy<SmartRankedStream> { it.info.isLowQuality }
++            .thenBy { item -> SmartLanguageReader.priority.indexOfFirst { it in item.info.languages.codes }.let { if (it < 0) Int.MAX_VALUE else it } }
++            .thenByDescending { it.info.source != null }
++            .thenByDescending { filters.imax == ImaxMode.PREFER && it.info.isImax }
++            .thenByDescending { if (filters.bigFiles != BigFileMode.OFF) it.info.sizeBytes ?: 0L else 0L }
++            .thenByDescending { it.score }.thenBy { it.index })
++        if (filters.bigFiles != BigFileMode.ONLY) return sorted
++        val largest = sorted.firstOrNull()?.info?.sizeBytes ?: return sorted
++        return sorted.filter { it.info.sizeBytes == largest }
++    }
++
 +    private fun matchingStreams(streams: List<SmartRankedStream>, filters: SmartStreamFilters): List<SmartRankedStream> {
 +        val strict = streams.filter { matches(it.info, filters) }
 +        if (strict.isNotEmpty() || filters.resolutions.isEmpty()) return strict
@@ -3414,11 +3476,8 @@ index 0000000..093f44e
 +                val bingeBonus = if (bingeGroup != null && stream.behaviorHints.bingeGroup == bingeGroup) BINGE_GROUP_BONUS else 0.0
 +                SmartRankedStream(stream, info, score(info, device, target, runtime) + bingeBonus, index)
 +            }
-+            .let { matchingStreams(it, settings.filters.copy(hideLowQuality = true)) }
-+            .sortedWith(compareByDescending<SmartRankedStream> { it.score }.thenBy { it.index })
-+            .let { all -> all.filter { it.info.instant != SmartInstant.NO }.ifEmpty { all } }
-+        val bySize = sizeOrder(ranked, settings.filters.bigFiles)
-+        val ordered = if (settings.filters.imax == ImaxMode.PREFER) bySize.sortedByDescending { it.info.isImax } else bySize
++            .let { matchingStreams(it, settings.filters) }
++        val ordered = playbackOrder(ranked, settings.filters)
 +        val best = ordered.firstOrNull()
 +        val goodEnough = best != null &&
 +            best.info.instant == SmartInstant.YES &&
@@ -3446,14 +3505,8 @@ index 0000000..093f44e
 +            }
 +        val eligible = if (settings.filters.imax == ImaxMode.ONLY) candidates.filter { it.info.isImax } else candidates
 +        val matching = matchingStreams(eligible, settings.filters)
-+        val sized = if (settings.filters.bigFiles == BigFileMode.ONLY) sizeOrder(matching, BigFileMode.ONLY) else matching
-+        val ordinaryQuality = sized.filterNot { it.info.isLowQuality }.ifEmpty { sized }
-+        val decent = if (settings.filters.imax == ImaxMode.PREFER) {
-+            ordinaryQuality.filter { it.info.isImax }.ifEmpty { ordinaryQuality }
-+        } else ordinaryQuality
-+        val top = decent.maxWithOrNull(compareBy<SmartRankedStream> {
-+            if (settings.filters.bigFiles == BigFileMode.PREFER) it.info.sizeBytes ?: 0L else 0L
-+        }.thenBy { it.score }.thenByDescending { it.index })
++        val sized = playbackOrder(matching, settings.filters)
++        val top = sized.firstOrNull()
 +        val best = top?.let { SmartPick(it.stream, it.info, reasons(it.info, device, target)) }
 +
 +        val filters = settings.filters
@@ -3474,18 +3527,14 @@ index 0000000..093f44e
 +                SmartRankedStream(stream, info, score(info, device, target, runtime), index)
 +            }
 +            val ordered = sorted(ranked, settings.sortMode)
-+            (if (settings.sortMode == SmartSortMode.BEST_MATCH) sizeOrder(ordered, filters.bigFiles) else ordered).map { it.stream }
++            (if (settings.sortMode == SmartSortMode.BEST_MATCH) playbackOrder(ordered, filters) else ordered).map { it.stream }
 +        }
 +
 +        return SmartStreamsResult(
 +            listState = filteredState,
 +            sortedStreams = sortedStreams,
 +            best = best,
-+            playbackOrder = ordinaryQuality.sortedWith(
-+                compareByDescending<SmartRankedStream> { settings.filters.imax == ImaxMode.PREFER && it.info.isImax }
-+                    .thenByDescending { if (settings.filters.bigFiles == BigFileMode.PREFER) it.info.sizeBytes ?: 0L else 0L }
-+                    .thenByDescending { it.score }.thenBy { it.index }
-+            ).map { it.stream },
++            playbackOrder = sized.map { it.stream },
 +            shownCount = shown,
 +            totalCount = total,
 +            emptyBecauseOfFilters = total > 0 && shown == 0,
