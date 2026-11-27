@@ -1,0 +1,59 @@
+name: Build Nuvio v2 TV beta for review
+on:
+  schedule:
+    - cron: '37 */6 * * *'
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/tv-beta.yml']
+permissions:
+  contents: read
+concurrency:
+  group: nuvio-v2-tv-beta
+  cancel-in-progress: false
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.pick.outputs.tag }}
+      code: ${{ steps.pick.outputs.code }}
+      version: ${{ steps.pick.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 release/tv-sync.py
+  build:
+    needs: select
+    if: needs.select.outputs.tag != ''
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.select.outputs.tag }}
+      CODE: ${{ needs.select.outputs.code }}
+      VERSION: ${{ needs.select.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+      - run: |
+          set -euo pipefail
+          git init -q upstream
+          cd upstream
+          repo=https://github.com/NuvioMedia/NuvioTV.git
+          git fetch --depth=1 "$repo" 77cc0bb5f42f55c5e3877fc4d57a7df510c3f42b
+          git fetch --depth=1 "$repo" "refs/tags/$TAG"
+          git checkout --detach FETCH_HEAD
+          git apply --3way ../release/tv-custom.patch
+          sed -Ei "s/^([[:space:]]*versionCode = )[0-9]+/\1$CODE/;s/^([[:space:]]*versionName = ).*/\1\"$VERSION\"/" app/build.gradle.kts
+          curl -fsSL --retry 3 https://api.nuvio.tv/.well-known/nuvio > "$RUNNER_TEMP/service.json"
+          key=$(jq -er 'select((.backend_url|rtrimstr("/"))=="https://api.nuvio.tv") | .publishable_key | select(length>0 and (test("[\\r\\n]")|not))' "$RUNNER_TEMP/service.json")
+          printf 'NUVIO_SUPABASE_URL=https://api.nuvio.tv\nNUVIO_SUPABASE_ANON_KEY=%s\n' "$key" > local.properties
+          bash gradlew --max-workers=2 -Pkotlin.compiler.execution.strategy=in-process :app:assembleFullRelease :app:testFullReleaseUnitTest --tests '*OfficialTrailerDirectoryTest' --tests '*StreamAutoPlaySelectorTest'
+          mapfile -t apks < <(find app/build/outputs/apk/full/release -name '*.apk')
+          [[ ${#apks[@]} == 1 ]]
+          cp "${apks[0]}" ../candidate.apk
+      - uses: actions/upload-artifact@v4
+        with: {name: tv-candidate, path: candidate.apk}
