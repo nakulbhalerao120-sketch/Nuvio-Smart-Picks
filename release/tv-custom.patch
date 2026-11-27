@@ -1823,7 +1823,7 @@ index 0b0768c..3d549a1 100644
 +                                Text(label)
 +                                Text(value)
                              }
-+                            HorizontalDivider()
++                            Box(Modifier.fillMaxWidth().height(1.dp).background(Color.White.copy(alpha = 0.12f)))
                          }
                      }
                  }
