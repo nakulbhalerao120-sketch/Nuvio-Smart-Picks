@@ -1,10 +1,10 @@
-name: Build Nuvio v2 TV beta for review
+name: Build and publish verified Nuvio v2 TV beta
 on:
   schedule:
     - cron: '37 */6 * * *'
   workflow_dispatch:
   push:
-    paths: ['.github/workflows/tv-beta.yml']
+    paths: ['.github/workflows/tv-beta.yml', 'release/tv-custom.patch', 'release/tv-sync.py']
 permissions:
   contents: read
 concurrency:
@@ -57,3 +57,45 @@ jobs:
           cp "${apks[0]}" ../candidate.apk
       - uses: actions/upload-artifact@v4
         with: {name: tv-candidate, path: candidate.apk}
+  release:
+    needs: [select, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      CODE: ${{ needs.select.outputs.code }}
+      VERSION: ${{ needs.select.outputs.version }}
+      APK: Nuvio-v2-TV-armeabi-v7a.apk
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: tv-candidate}
+      - name: Verify Fire Stick package before signing
+        run: |
+          set -euo pipefail
+          b="$ANDROID_HOME/build-tools/36.0.0"
+          "$b/aapt" dump badging candidate.apk > package.txt
+          grep -F "package: name='com.nakul.nuvio.smart.auto.tv' versionCode='$CODE' versionName='$VERSION'" package.txt
+          grep -Fx "native-code: 'armeabi-v7a'" package.txt
+          grep -q 'leanback-launchable-activity:' package.txt
+          unzip -Z1 candidate.apk | grep -E '^lib/armeabi-v7a/libmpv\.so$' > /dev/null
+      - name: Sign and verify TV APK
+        env:
+          STORE: ${{ secrets.NUVIO_STORE_B64 }}
+          STOREPASS: ${{ secrets.NUVIO_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/tv-release.p12"
+          trap 'rm -f "$key"' EXIT
+          printf '%s' "$STORE" | base64 -d > "$key"
+          signer="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          "$signer" sign --ks "$key" --ks-pass env:STOREPASS --out "$APK" candidate.apk
+          "$signer" verify --print-certs "$APK" | grep -Fx 'Signer #1 certificate SHA-256 digest: ed8bbd033a867b7f43b5f19c11fb7658272819ef0195962d320466db6bb70745'
+      - name: Publish verified TV beta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_TAG: ${{ needs.select.outputs.tag }}
+        run: |
+          set -euo pipefail
+          zip -q -0 "Nuvio_v2_TV_$CODE.zip" "$APK"
+          gh release create "tv-v$VERSION" "$APK" "Nuvio_v2_TV_$CODE.zip" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title "Nuvio v2 TV • $UPSTREAM_TAG • Fire Stick build $CODE" --notes "Based on official NuvioTV $UPSTREAM_TAG. Signed 32-bit ARM update for Nuvio v2 TV."
