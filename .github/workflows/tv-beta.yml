@@ -47,6 +47,7 @@ jobs:
           git fetch --depth=1 "$repo" "refs/tags/$TAG"
           git checkout --detach FETCH_HEAD
           git apply --3way ../release/tv-custom.patch
+          git apply ../release/tv-live.patch
           sed -Ei "s/^([[:space:]]*versionCode = )[0-9]+/\1$CODE/;s/^([[:space:]]*versionName = ).*/\1\"$VERSION\"/" app/build.gradle.kts
           curl -fsSL --retry 3 https://api.nuvio.tv/.well-known/nuvio > "$RUNNER_TEMP/service.json"
           key=$(jq -er 'select((.backend_url|rtrimstr("/"))=="https://api.nuvio.tv") | .publishable_key | select(length>0 and (test("[\\r\\n]")|not))' "$RUNNER_TEMP/service.json")
