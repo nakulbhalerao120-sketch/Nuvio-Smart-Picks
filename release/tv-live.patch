@@ -1,0 +1,50 @@
+diff --git a/app/src/main/java/com/nuvio/tv/core/player/StreamAutoPlaySelector.kt b/app/src/main/java/com/nuvio/tv/core/player/StreamAutoPlaySelector.kt
+index dd62437..7d0e9e8 100644
+--- a/app/src/main/java/com/nuvio/tv/core/player/StreamAutoPlaySelector.kt
++++ b/app/src/main/java/com/nuvio/tv/core/player/StreamAutoPlaySelector.kt
+@@ -46,13 +46,22 @@ object StreamAutoPlaySelector {
+         Regex("""(?i)\b(en|eng|english)\b""")
+     )
+ 
++    private val autoQuality = Regex("""(?i)\bauto\b""")
++
+     private data class Attempt(val url: String, val remaining: List<Stream>, val startedAt: Long)
+     private var attempt: Attempt? = null
+ 
+     @Synchronized
+     fun playBest(streams: List<Stream>): Stream? {
+-        val eligible = streams.filter(::isPlayable)
+-        val first = BestFilters.choose(eligible, ::bestRank)
++        val playable = streams.filter(::isPlayable)
++        val live = playable.filter { stream ->
++            listOfNotNull(stream.name, stream.title, stream.description).any {
++                it.contains("JioTVPlusProvider", ignoreCase = true)
++            }
++        }
++        val eligible = live.ifEmpty { playable }
++        val first = if (live.isEmpty()) BestFilters.choose(eligible, ::bestRank) else
++            live.firstOrNull { it.name?.contains(autoQuality) == true } ?: live.first()
+         attempt = first?.getStreamUrl()?.let { url ->
+             Attempt(url, eligible.filter { it.getStreamUrl() != url }, System.nanoTime())
+         }
+diff --git a/app/src/test/java/com/nuvio/tv/core/player/StreamAutoPlaySelectorTest.kt b/app/src/test/java/com/nuvio/tv/core/player/StreamAutoPlaySelectorTest.kt
+index a163608..48293ef 100644
+--- a/app/src/test/java/com/nuvio/tv/core/player/StreamAutoPlaySelectorTest.kt
++++ b/app/src/test/java/com/nuvio/tv/core/player/StreamAutoPlaySelectorTest.kt
+@@ -14,6 +14,16 @@ import org.junit.Assert.assertNull
+ import org.junit.Test
+ 
+ class StreamAutoPlaySelectorTest {
++    @Test
++    fun `live channel selects adaptive feed before fixed quality and ignores donation row on retry`() {
++        val notice = stream("Live", "https://example.com/donate", name = "Support the project")
++        val fixed = stream("Live", "https://example.com/fixed", name = "CNCVerse 1080p JioTVPlusProvider")
++        val auto = stream("Live", "https://example.com/auto", name = "CNCVerse Auto JioTVPlusProvider")
++        assertEquals(auto, StreamAutoPlaySelector.playBest(listOf(notice, fixed, auto)))
++        assertEquals(fixed, StreamAutoPlaySelector.nextAfterFailure(auto.url!!))
++        assertNull(StreamAutoPlaySelector.nextAfterFailure(fixed.url!!))
++    }
++
+     @Test
+     fun `failed direct sources advance once in ranked order`() {
+         val hi = stream("A", "https://example.com/hi", name = "Hindi WEB-DL")
