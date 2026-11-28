@@ -22,9 +22,9 @@ versions = {}
 for release in existing:
     match = re.fullmatch(r"tv-v(.+)-?\.tv\.(\d+)", release["tag_name"])
     if match and any(asset["name"] == "Nuvio-v2-TV-armeabi-v7a.apk" for asset in release["assets"]):
-        versions[number(match[1])] = int(match[2])
+        versions[number(match[1])] = max(versions.get(number(match[1]), 0), int(match[2]))
 pending = sorted((number(r["tag_name"]), r["tag_name"]) for r in releases(owner)
-                 if number(r["tag_name"]) >= number(base) and number(r["tag_name"]) not in versions
+                 if number(r["tag_name"]) >= number(base) and (number(r["tag_name"]) not in versions or (number(r["tag_name"]) == number(base) and versions[number(base)] < 1087))
                  and any(a["name"].lower().endswith(".apk") for a in r["assets"]))
 if pending:
     _, tag = pending[0]
